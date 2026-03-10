@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<div class="container-fluid bg-success text-white text-center py-5 shadow-sm rounded-bottom mb-5" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
+    <div class="container py-5">
+        <h1 class="display-4 fw-bold mb-3">Klinik Beslenme Bilgi Sistemi</h1>
+        <p class="lead mb-4 fw-normal">Uzman diyetisyenler ve hastalar için tasarlanmış, kronik hastalıklara tam uyumlu akıllı menü planlama ve takip otomasyonu.</p>
+
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+            <a asp-controller="Home" asp-action="GirisYap" class="btn btn-light btn-lg px-4 gap-3 fw-bold text-success shadow">
+                Sisteme Giriş Yap
+            </a>
+            <a asp-controller="Home" asp-action="KayitOl" class="btn btn-outline-light btn-lg px-4 fw-bold">
+                Yeni Hasta Kaydı
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row text-center">
+        <div class="col-12 mb-4">
+            <h2 class="fw-bold text-secondary">Sistem Özellikleri</h2>
+            <p class="text-muted">Gelişmiş veri tabanı altyapısı ile sağlığınız güvende.</p>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm custom-hover-card">
+                <div class="card-body p-4">
+                    <div class="display-4 mb-3">🍽️</div>
+                    <h5 class="card-title fw-bold">Zengin Reçete Arşivi</h5>
+                    <p class="card-text text-muted">TÜRKOMP verilerine dayalı, gramajı ve makroları hesaplanmış 226'dan fazla standart klinik yemek reçetesi.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm custom-hover-card">
+                <div class="card-body p-4">
+                    <div class="display-4 mb-3">🩺</div>
+                    <h5 class="card-title fw-bold">Klinik Kısıtlamalar</h5>
+                    <p class="card-text text-muted">Çölyak, diyabet ve hipertansiyon gibi kronik rahatsızlıklara özel akıllı filtreleme ve alerjen (glüten) kontrolü.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm custom-hover-card">
+                <div class="card-body p-4">
+                    <div class="display-4 mb-3">📊</div>
+                    <h5 class="card-title fw-bold">Dinamik Profil Takibi</h5>
+                    <p class="card-text text-muted">Hastaların yaş, boy, kilo (VKİ) ve iletişim bilgilerini güvenli veritabanında saklayın ve anlık güncelleyin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .custom-hover-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+</style>

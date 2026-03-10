@@ -1,0 +1,92 @@
+﻿@model KlinikBeslenmeApp.Models.TblHastalar
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 bg-primary text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1">👋 Hoş Geldin, @Model.Ad @Model.Soyad!</h2>
+                        <p class="mb-0 fs-5">Sağlıklı yaşam hedeflerine bir adım daha yaklaşmak için harika bir gün.</p>
+                    </div>
+                    <div class="text-end d-none d-md-block">
+                        <span class="badge bg-light text-primary fs-6 px-3 py-2">Klinik Profil: Aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.ColyakMi == true || Model.DiyabetMi == true || Model.TansiyonHastasiMi == true)
+    {
+        <div class="alert alert-warning shadow-sm border-start border-warning border-5 mb-4" role="alert">
+            <h5 class="alert-heading fw-bold"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Klinik Uyarı Sisteminiz</h5>
+            <hr>
+            <p class="mb-0">
+                Sistemimiz;
+                @if (Model.ColyakMi == true)
+                {
+                    <strong class="text-danger">Çölyak (Glütensiz)</strong>
+                }
+                @if (Model.DiyabetMi == true)
+                {
+                    <strong class="text-danger">Diyabet</strong>
+                }
+                @if (Model.TansiyonHastasiMi == true)
+                {
+                    <strong class="text-danger">Hipertansiyon</strong>
+                }
+                profilinize uygun olarak reçetelerinizi ve alerjen bildirimlerinizi otomatik filtrelemektedir.
+            </p>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm border-0 text-center">
+                <div class="card-body py-4">
+                    <div class="display-3 mb-2">⚖️</div>
+                    <h5 class="text-muted fw-bold">Vücut Kitle İndeksi</h5>
+                    @if (ViewBag.VKI != null)
+                    {
+                        <h2 class="display-5 fw-bold @(ViewBag.VKI > 25 ? "text-danger" : "text-success")">@ViewBag.VKI</h2>
+                        <span class="text-muted">Son Güncelleme: Bugün</span>
+                    }
+                    else
+                    {
+                        <p class="text-danger fw-bold">Lütfen profilinizden boy ve kilonuzu güncelleyin.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm border-0 text-center">
+                <div class="card-body py-4">
+                    <div class="display-3 mb-2">🍎</div>
+                    <h5 class="text-muted fw-bold">Bugünkü Menüm</h5>
+                    <p class="text-secondary mt-3">Klinik değerlerinize özel hazırlanan günlük yemek listenize ulaşın.</p>
+
+                    <a asp-action="GunlukMenu" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-outline-success fw-bold w-100 mt-2 shadow-sm">
+                        Menüyü Görüntüle 🚀
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm border-0 text-center bg-light">
+                <div class="card-body py-4">
+                    <div class="display-3 mb-2">⚙️</div>
+                    <h5 class="text-muted fw-bold">Hesap Yönetimi</h5>
+                    <p class="text-secondary mt-3">Kişisel bilgilerinizi, adresinizi ve klinik ölçümlerinizi güncelleyin.</p>
+                    <div class="d-grid gap-2 mt-2">
+                        <a asp-action="Profilim" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-primary fw-bold">Profilime Git</a>
+                        <a asp-action="ProfilDuzenle" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-outline-secondary fw-bold">Düzenle</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

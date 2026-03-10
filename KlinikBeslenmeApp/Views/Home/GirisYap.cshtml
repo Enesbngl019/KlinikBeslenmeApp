@@ -1,0 +1,50 @@
+﻿@if (TempData["BasariMesaji"] != null)
+{
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show text-center shadow-sm" role="alert">
+            <strong>Tebrikler!</strong> @TempData["BasariMesaji"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg mt-5">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Sisteme Giriş Yap</h4>
+                </div>
+                <div class="card-body p-4">
+
+                    @if (ViewBag.Hata != null)
+                    {
+                        <div class="alert alert-danger text-center">
+                            @ViewBag.Hata
+                        </div>
+                    }
+
+                    <form asp-action="GirisYap" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">E-Mail Adresi</label>
+                            <input type="email" class="form-control" name="email" placeholder="ornek@mail.com" required />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Şifre</label>
+                            <input type="password" class="form-control" name="sifre" placeholder="******" required />
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Giriş Yap</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <small>Hesabınız yok mu? <a href="/Home/KayitOl" class="text-primary fw-bold">Hemen Kayıt Olun</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

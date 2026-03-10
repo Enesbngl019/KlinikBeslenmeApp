@@ -1,0 +1,92 @@
+﻿@model IEnumerable<KlinikBeslenmeApp.Controllers.GunlukMenuViewModel>
+@{
+    
+    var corbaId = Model.ElementAtOrDefault(0)?.YemekId;
+    var anaId = Model.ElementAtOrDefault(1)?.YemekId;
+    var yanId = Model.ElementAtOrDefault(2)?.YemekId;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h2 class="fw-bold text-success">🍽️ @ViewBag.HastaAd, Bugünkü Özel Menün</h2>
+        <div>
+            <a href="@Url.Action("GunlukMenu", new { id = ViewBag.HastaId, yenile = true })" class="btn btn-outline-primary btn-sm me-2 shadow-sm">
+                <i class="bi bi-shuffle"></i> Tüm Menüyü Değiştir
+            </a>
+            <a href="@Url.Action("AnaPanel", "Home", new { id = ViewBag.HastaId })" class="btn btn-secondary btn-sm shadow-sm">Panoya Dön</a>
+        </div>
+    </div>
+
+    <div class="alert alert-info shadow-sm mb-4 border-0 border-start border-info border-5">
+        <h5 class="fw-bold"><i class="bi bi-shield-check text-info"></i> Reçete Bazlı Hassas Hesaplama</h5>
+        <p class="mb-0">
+            Bu menünün besin değerleri, yemeklerin reçetelerindeki malzemelerin gramajları baz alınarak <strong>miligramı miligramına</strong> hesaplanmıştır.
+        </p>
+    </div>
+
+    <div class="row align-items-stretch">
+        @{
+            string[] ogunEtiketleri = { "🥣 Birinci Kap", "🔥 İkinci Kap", "🥗 Üçüncü Kap" };
+            int i = 0;
+        }
+
+        @foreach (var yemek in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow border-0" style="border-radius: 15px; background: #f8f9fa;">
+                    <div class="card-header bg-dark text-white text-center fw-bold" style="border-radius: 15px 15px 0 0;">
+                        @(i < 3 ? ogunEtiketleri[i] : "Ekstra")
+                    </div>
+                    <div class="card-body p-4 text-center d-flex flex-column">
+                        <h4 class="card-title fw-bold text-dark mb-1">@yemek.YemekAdi</h4>
+                        <span class="badge bg-secondary mb-4">@yemek.Kategori</span>
+
+                        <div class="row text-center mb-3">
+                            <div class="col-4 border-end">
+                                <small class="text-muted d-block">Kalori</small>
+                                <strong class="fs-5">@yemek.ToplamKalori</strong>
+                            </div>
+                            <div class="col-4 border-end">
+                                <small class="text-muted d-block">Protein</small>
+                                <strong class="fs-5 text-success">@yemek.ToplamProtein g</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Karb.</small>
+                                <strong class="fs-5 text-warning">@yemek.ToplamKarb g</strong>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-auto px-2">
+                            <span class="text-muted small" title="Maksimum Glisemik İndeks"><i class="bi bi-activity"></i> GI: <strong>@yemek.MaxGlisemikIndeks</strong></span>
+                            <span class="text-muted small"><i class="bi bi-moisture"></i> Sodyum: <strong>@yemek.ToplamSodyum mg</strong></span>
+                        </div>
+
+                        <hr class="w-100 mt-4 mb-3">
+
+                        <div>
+                            @if (i == 0)
+                            {
+                                <a href="@Url.Action("GunlukMenu", new { id = ViewBag.HastaId, cId = 0, aId = anaId, yId = yanId })" class="btn btn-outline-danger btn-sm w-100 fw-bold"><i class="bi bi-arrow-repeat"></i> Sadece Çorbayı Değiştir</a>
+                            }
+                            else if (i == 1)
+                            {
+                                <a href="@Url.Action("GunlukMenu", new { id = ViewBag.HastaId, cId = corbaId, aId = 0, yId = yanId })" class="btn btn-outline-danger btn-sm w-100 fw-bold"><i class="bi bi-arrow-repeat"></i> Sadece Ana Yemeği Değiştir</a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("GunlukMenu", new { id = ViewBag.HastaId, cId = corbaId, aId = anaId, yId = 0 })" class="btn btn-outline-danger btn-sm w-100 fw-bold"><i class="bi bi-arrow-repeat"></i> Sadece Bunu Değiştir</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            i++;
+        }
+    </div>
+
+    <div class="card bg-success text-white text-center shadow border-0 mt-3" style="border-radius: 15px;">
+        <div class="card-body">
+            <h5 class="mb-0">Bu Öğünün Tam Kalorisi: <strong>@Model.Sum(x => x.ToplamKalori) kcal</strong></h5>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+﻿@model KlinikBeslenmeApp.Models.TblHastalar
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Kişisel Bilgiler</h5>
+                    <a asp-action="ProfilDuzenle"
+                       asp-controller="Home"
+                       asp-route-id="@Model.HastaId"
+                       class="btn btn-sm btn-light text-dark fw-bold shadow-sm">
+                        ✏️ Düzenle
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-primary">@Model.Ad @Model.Soyad</h3>
+                    <p class="text-muted mb-1">📍 @Model.Sehir / @Model.Ilce</p>
+                    <p class="text-muted">📧 @Model.Email</p>
+                    <hr />
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <span class="d-block text-muted">Boy</span>
+                            <span class="fw-bold fs-5">@Model.Boy cm</span>
+                        </div>
+                        <div class="col-6">
+                            <span class="d-block text-muted">Kilo</span>
+                            <span class="fw-bold fs-5">@Model.Kilo kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                @if (ViewBag.VKI != null)
+                {
+                    <div class="card-footer bg-light text-center py-3">
+                        <h6 class="text-secondary">Vücut Kitle İndeksi (VKİ)</h6>
+                        <h2 class="fw-bold @(ViewBag.VKI > 25 ? "text-danger" : "text-success")">@ViewBag.VKI</h2>
+                        <span class="badge @(ViewBag.VKI > 25 ? "bg-danger" : "bg-success") px-3 py-2">@ViewBag.Durum</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card shadow border-0 border-top border-danger border-4">
+                <div class="card-header bg-white">
+                    <h5 class="text-danger fw-bold mb-0">Klinik Profil & Kısıtlamalar</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+
+                        @if (Model.ColyakMi == true)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fs-5 me-2">🌾</i> Çölyak Hastalığı</span>
+                                <span class="badge bg-danger rounded-pill">Glüten Yasak</span>
+                            </li>
+                        }
+
+                        @if (Model.TansiyonHastasiMi == true)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fs-5 me-2">🧂</i> Hipertansiyon</span>
+                                <span class="badge bg-danger rounded-pill">Yüksek Sodyum Yasak</span>
+                            </li>
+                        }
+
+                        @if (Model.DiyabetMi == true)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fs-5 me-2">🍬</i> Diyabet (Tip 1/2)</span>
+                                <span class="badge bg-danger rounded-pill">Yüksek GI Yasak</span>
+                            </li>
+                        }
+
+                        @if (Model.ColyakMi == false && Model.TansiyonHastasiMi == false && Model.DiyabetMi == false)
+                        {
+                            <li class="list-group-item text-success fw-bold text-center py-4">
+                                Sistemde kayıtlı herhangi bir kronik hastalığınız veya gıda kısıtlamanız bulunmamaktadır.
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
