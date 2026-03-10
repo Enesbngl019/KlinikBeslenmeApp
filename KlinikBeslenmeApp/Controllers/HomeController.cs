@@ -304,6 +304,72 @@ namespace KlinikBeslenmeApp.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("GirisYap");
         }
+        [HttpGet]
+        public IActionResult YemekGunluguEkle(int id)
+        {
+            var hasta = _context.TblHastalars.Find(id);
+            if (hasta == null) return RedirectToAction("GirisYap");
+
+            ViewBag.HastaId = id;
+            ViewBag.HastaAd = hasta.Ad;
+
+            var tumYemekler = _context.TblYemeklers.OrderBy(x => x.YemekAdi).ToList();
+            var yemekKalorileri = new Dictionary<int, double>();
+
+           
+            foreach (var y in tumYemekler)
+            {
+                var detaylar = (from r in _context.TblYemekMalzemeleris
+                                join m in _context.TblMalzemelers on r.MalzemeId equals m.MalzemeId
+                                where r.YemekId == y.YemekId
+                                select new { r.MiktarGram, m.Kalori }).ToList();
+
+                double topKalori = 0;
+                foreach (var d in detaylar)
+                {
+                    topKalori += (Convert.ToDouble(d.MiktarGram) / 100.0) * Convert.ToDouble(d.Kalori);
+                }
+                yemekKalorileri.Add(y.YemekId, Math.Round(topKalori, 0));
+            }
+
+            ViewBag.Yemekler = tumYemekler;
+            ViewBag.Kaloriler = yemekKalorileri;
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult YemekGunluguEkle(TblYemekGunlugu data, List<int> secilenYemekler)
+        {
+            if (secilenYemekler == null || secilenYemekler.Count == 0)
+            {
+                TempData["Hata"] = "Lütfen en az bir yemek seçin!";
+                return RedirectToAction("YemekGunluguEkle", new { id = data.HastaId });
+            }
+
+            DateTime ortakKayitZamani = DateTime.Now;
+
+            // rastgele benzersiz ýd oluþtur (5a8f9c1b) gibi
+            string benzersizKayitId = Guid.NewGuid().ToString().Substring(0, 8);
+
+            foreach (var yId in secilenYemekler)
+            {
+                var yeniKayit = new TblYemekGunlugu
+                {
+                    HastaId = data.HastaId,
+                    YemekId = yId,
+                    OgunTipi = data.OgunTipi,
+                    Aciklama = data.Aciklama,
+                    TuketimTarihi = ortakKayitZamani,
+                    KayitId = benzersizKayitId 
+                };
+                _context.TblYemekGunlugus.Add(yeniKayit);
+            }
+
+            _context.SaveChanges();
+            TempData["Mesaj"] = "Afiyet olsun! Bütün öðünlerin baþarýyla kaydedildi.";
+            return RedirectToAction("AnaPanel", new { id = data.HastaId });
+        }
     }
     public class GunlukMenuViewModel
     {
@@ -315,5 +381,6 @@ namespace KlinikBeslenmeApp.Controllers
         public double ToplamKarb { get; set; }
         public double ToplamSodyum { get; set; }
         public int MaxGlisemikIndeks { get; set; }
+
     }
 }

@@ -1,0 +1,151 @@
+﻿@model KlinikBeslenmeApp.Models.TblYemekGunlugu
+
+<div class="container mt-5 mb-5" style="max-width: 600px;">
+    <div class="card shadow-lg border-0" style="border-radius: 15px;">
+        <div class="card-header bg-primary text-white text-center py-3" style="border-radius: 15px 15px 0 0;">
+            <h4 class="mb-0"><i class="bi bi-journal-plus"></i> Yemek Günlüğüm</h4>
+        </div>
+        <div class="card-body p-4 text-center">
+            <p class="text-muted">Sevgili <strong>@ViewBag.HastaAd</strong>, yediğin öğünü kaydederek gelişimini takip edebiliriz.</p>
+
+            <form asp-action="YemekGunluguEkle" method="post">
+                <input type="hidden" asp-for="HastaId" value="@ViewBag.HastaId" />
+
+                <div class="mb-4 text-start">
+                    <label class="fw-bold text-secondary mb-1">Kayıt Zamanı</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-clock"></i></span>
+                        <input type="text" class="form-control bg-light text-muted" value="@DateTime.Now.ToString("dd MMMM yyyy - HH:mm")" readonly>
+                    </div>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label class="fw-bold text-dark mb-1">Hangi Öğün?</label>
+                    <select asp-for="OgunTipi" class="form-select form-select-lg" required>
+                        <option value="">-- Öğün Seç --</option>
+                        <option value="Kahvaltı">☀️ Kahvaltı</option>
+                        <option value="Öğle Yemeği">🌤️ Öğle Yemeği</option>
+                        <option value="Ara Öğün">🍎 Ara Öğün</option>
+                        <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
+                        <option value="Gece Atıştırmalığı">🍟 Gece Atıştırmalığı</option>
+                        <option value="Atıştırmalık / Kaçamak">🍫 Atıştırmalık / Tadımlık</option>
+                    </select>
+                </div>
+                <div class="mb-4 text-start">
+                    <label class="fw-bold text-dark mb-1">Ne Yedin?</label>
+
+                    <div id="yemeklerContainer">
+                        <div class="yemek-satiri mb-2 d-flex align-items-center shadow-sm rounded">
+                            <select name="secilenYemekler" class="form-select form-select-lg yemek-secici" onchange="kaloriGuncelle(this)" required>
+                                <option value="" data-kalori="0">-- Listeden Yemek Seç --</option>
+                                @foreach (var yemek in ViewBag.Yemekler)
+                                {
+                                    <option value="@yemek.YemekId" data-kalori="@ViewBag.Kaloriler[yemek.YemekId]">
+                                        @yemek.YemekAdi (@yemek.Kategori)
+                                    </option>
+                                }
+                            </select>
+                            <span class="badge bg-warning text-dark ms-2 kalori-etiketi shadow-sm" style="min-width: 85px; font-size: 1rem;">0 kcal</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline-primary fw-bold mt-2 shadow-sm" onclick="yeniYemekSatiriEkle()">
+                        <i class="bi bi-plus-circle"></i> Başka Bir Yemek Daha Ekle
+                    </button>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label class="fw-bold text-dark mb-1">Açıklama / Doktora Not (İsteğe Bağlı)</label>
+                    <textarea asp-for="Aciklama" class="form-control" rows="2" placeholder="Örn: Tatlıyı dayanamayıp tam porsiyon yedim..."></textarea>
+                </div>
+
+                <div class="alert alert-success d-flex justify-content-between align-items-center mb-4 shadow-sm">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-activity"></i> Öğünün Toplam Kalorisi:</h5>
+                    <h4 class="mb-0 fw-bold text-danger"><span id="toplamKaloriSonuc">0</span> kcal</h4>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg fw-bold shadow-sm">
+                        <i class="bi bi-check2-circle"></i> Öğünü Kaydet
+                    </button>
+                    <a href="@Url.Action("AnaPanel", new { id = ViewBag.HastaId })" class="btn btn-outline-secondary">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+ 
+    function kaloriGuncelle(selectElement) {
+        var secilenOption = selectElement.options[selectElement.selectedIndex];
+        var kaloriDegeri = secilenOption.getAttribute('data-kalori'); 
+
+
+        var etiket = selectElement.parentElement.querySelector('.kalori-etiketi');
+        etiket.innerText = kaloriDegeri + " kcal";
+
+        genelToplamiHesapla();
+    }
+
+    function genelToplamiHesapla() {
+        var toplam = 0;
+        var butunSeciciler = document.querySelectorAll('.yemek-secici');
+
+        butunSeciciler.forEach(function(selectBox) {
+            var secilenOption = selectBox.options[selectBox.selectedIndex];
+            if(secilenOption.value !== "") {
+                toplam += parseFloat(secilenOption.getAttribute('data-kalori'));
+            }
+        });
+
+        document.getElementById('toplamKaloriSonuc').innerText = Math.round(toplam);
+    }
+
+    function yeniYemekSatiriEkle() {
+        var container = document.getElementById("yemeklerContainer");
+        var ilkSatir = document.querySelector(".yemek-satiri");
+
+        var yeniSatir = ilkSatir.cloneNode(true);
+        var selectBox = yeniSatir.querySelector("select");
+        var kaloriEtiketi = yeniSatir.querySelector(".kalori-etiketi");
+
+        selectBox.value = "";
+        kaloriEtiketi.innerText = "0 kcal";
+
+        var silButonu = document.createElement("button");
+        silButonu.type = "button";
+        silButonu.className = "btn btn-danger ms-2 shadow-sm";
+        silButonu.innerHTML = "<i class='bi bi-trash'></i>";
+
+        silButonu.onclick = function() {
+            container.removeChild(yeniSatir);
+            genelToplamiHesapla(); 
+        };
+
+        yeniSatir.appendChild(silButonu);
+        container.appendChild(yeniSatir);
+    }
+</script>
+    function yeniYemekSatiriEkle() {
+
+        var container = document.getElementById("yemeklerContainer");
+        var ilkSatir = document.querySelector(".yemek-satiri");
+
+        var yeniSatir = ilkSatir.cloneNode(true);
+
+        yeniSatir.querySelector("select").value = "";
+
+        var silButonu = document.createElement("button");
+        silButonu.type = "button";
+        silButonu.className = "btn btn-danger ms-2";
+        silButonu.innerHTML = "<i class='bi bi-trash'></i>";
+
+        silButonu.onclick = function() {
+            container.removeChild(yeniSatir);
+        };
+
+        yeniSatir.appendChild(silButonu);
+        container.appendChild(yeniSatir);
+    }
+</script>

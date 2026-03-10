@@ -17,6 +17,7 @@ public partial class KlinikBeslenmeDbContext : DbContext
 
     public virtual DbSet<TblHastalar> TblHastalars { get; set; }
 
+    public virtual DbSet<TblYemekGunlugu> TblYemekGunlugus { get; set; }
     public virtual DbSet<TblMalzemeler> TblMalzemelers { get; set; }
     public virtual DbSet<TblYemekler> TblYemeklers { get; set; }
     public virtual DbSet<TblYemekMalzemeleri> TblYemekMalzemeleris { get; set; }
