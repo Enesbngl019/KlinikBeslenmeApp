@@ -15,6 +15,7 @@ namespace KlinikBeslenmeApp.Models
         public DateTime TuketimTarihi { get; set; }
         public string Aciklama { get; set; }
 
+        public double Porsiyon { get; set; } = 1.0;
         public string? KayitId { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using KlinikBeslenmeApp.Models;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace KlinikBeslenmeApp.Controllers
 {
@@ -10,19 +11,13 @@ namespace KlinikBeslenmeApp.Controllers
     {
         KlinikBeslenmeDbContext _context = new KlinikBeslenmeDbContext();
 
-        
         public IActionResult Index()
         {
-            
             var email = HttpContext.Session.GetString("Email");
-
             if (!string.IsNullOrEmpty(email))
             {
                 var hasta = _context.TblHastalars.FirstOrDefault(x => x.Email == email);
-                if (hasta != null)
-                {
-                    return RedirectToAction("AnaPanel", new { id = hasta.HastaId });
-                }
+                if (hasta != null) return RedirectToAction("AnaPanel", new { id = hasta.HastaId });
             }
 
             ViewBag.KullaniciAd = HttpContext.Session.GetString("KullaniciAd");
@@ -35,16 +30,12 @@ namespace KlinikBeslenmeApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult GirisYap()
-        {
-            return View();
-        }
+        public IActionResult GirisYap() { return View(); }
 
         [HttpPost]
         public IActionResult GirisYap(string Email, string Sifre)
         {
             var girisYapanHasta = _context.TblHastalars.FirstOrDefault(x => x.Email == Email && x.Sifre == Sifre);
-
             if (girisYapanHasta != null)
             {
                 HttpContext.Session.SetString("Email", girisYapanHasta.Email);
@@ -55,17 +46,11 @@ namespace KlinikBeslenmeApp.Controllers
 
                 return RedirectToAction("AnaPanel", new { id = girisYapanHasta.HastaId });
             }
-            else
-            {
-                ViewBag.HataMesaji = "E-posta adresiniz veya þifreniz hatalý. Lütfen tekrar deneyin!";
-                return View();
-            }
-        }
-
-        public IActionResult KayitOl()
-        {
+            ViewBag.HataMesaji = "E-posta adresiniz veya þifreniz hatalý. Lütfen tekrar deneyin!";
             return View();
         }
+
+        public IActionResult KayitOl() { return View(); }
 
         [HttpPost]
         public IActionResult KayitOl(TblHastalar yeniHasta)
@@ -77,10 +62,7 @@ namespace KlinikBeslenmeApp.Controllers
                 return View(yeniHasta);
             }
 
-            if (!string.IsNullOrEmpty(yeniHasta.Telefon))
-            {
-                yeniHasta.Telefon = "+90" + yeniHasta.Telefon;
-            }
+            if (!string.IsNullOrEmpty(yeniHasta.Telefon)) yeniHasta.Telefon = "+90" + yeniHasta.Telefon;
 
             var bugun = DateTime.Today;
             var yas = bugun.Year - yeniHasta.DogumTarihi.Year;
@@ -166,13 +148,6 @@ namespace KlinikBeslenmeApp.Controllers
                 _context.TblHastalars.Update(guncelHasta);
                 _context.SaveChanges();
                 TempData["BasariMesaji"] = "Profil bilgileriniz baþarýyla güncellendi!";
-
-                HttpContext.Session.SetString("Email", guncelHasta.Email);
-                HttpContext.Session.SetString("KullaniciAd", guncelHasta.Ad);
-                HttpContext.Session.SetString("Colyak", guncelHasta.ColyakMi == true ? "1" : "0");
-                HttpContext.Session.SetString("Diyabet", guncelHasta.DiyabetMi == true ? "1" : "0");
-                HttpContext.Session.SetString("Tansiyon", guncelHasta.TansiyonHastasiMi == true ? "1" : "0");
-
                 return RedirectToAction("Profilim", new { id = guncelHasta.HastaId });
             }
             catch (Exception ex)
@@ -181,6 +156,7 @@ namespace KlinikBeslenmeApp.Controllers
                 return View(guncelHasta);
             }
         }
+
         [HttpGet]
         public IActionResult GunlukMenu(int id, int? cId = null, int? aId = null, int? yId = null, bool yenile = false)
         {
@@ -214,48 +190,21 @@ namespace KlinikBeslenmeApp.Controllers
             }
 
             TblYemekler secilenCorba = null;
-            if (cId == 0)
-            {
-                secilenCorba = guvenliListe.Where(x => x.Kategori == "Çorbalar").OrderBy(x => rand.Next()).FirstOrDefault();
-            }
-            else if (cId.HasValue && cId > 0)
-            {
-                secilenCorba = guvenliListe.FirstOrDefault(x => x.YemekId == cId.Value);
-            }
-            else if (!string.IsNullOrEmpty(HttpContext.Session.GetString(sKeyC)))
-            {
-                secilenCorba = guvenliListe.FirstOrDefault(x => x.YemekId == int.Parse(HttpContext.Session.GetString(sKeyC)));
-            }
+            if (cId == 0) secilenCorba = guvenliListe.Where(x => x.Kategori == "Çorbalar").OrderBy(x => rand.Next()).FirstOrDefault();
+            else if (cId.HasValue && cId > 0) secilenCorba = guvenliListe.FirstOrDefault(x => x.YemekId == cId.Value);
+            else if (!string.IsNullOrEmpty(HttpContext.Session.GetString(sKeyC))) secilenCorba = guvenliListe.FirstOrDefault(x => x.YemekId == int.Parse(HttpContext.Session.GetString(sKeyC)));
             if (secilenCorba == null) secilenCorba = guvenliListe.Where(x => x.Kategori == "Çorbalar").OrderBy(x => rand.Next()).FirstOrDefault();
 
             TblYemekler secilenAnaYemek = null;
-            if (aId == 0)
-            {
-                secilenAnaYemek = guvenliListe.Where(x => x.Kategori.Contains("Et") || x.Kategori.Contains("Tavuk") || x.Kategori.Contains("Balýk")).OrderBy(x => rand.Next()).FirstOrDefault();
-            }
-            else if (aId.HasValue && aId > 0)
-            {
-                secilenAnaYemek = guvenliListe.FirstOrDefault(x => x.YemekId == aId.Value);
-            }
-            else if (!string.IsNullOrEmpty(HttpContext.Session.GetString(sKeyA)))
-            {
-                secilenAnaYemek = guvenliListe.FirstOrDefault(x => x.YemekId == int.Parse(HttpContext.Session.GetString(sKeyA)));
-            }
+            if (aId == 0) secilenAnaYemek = guvenliListe.Where(x => x.Kategori.Contains("Et") || x.Kategori.Contains("Tavuk") || x.Kategori.Contains("Balýk")).OrderBy(x => rand.Next()).FirstOrDefault();
+            else if (aId.HasValue && aId > 0) secilenAnaYemek = guvenliListe.FirstOrDefault(x => x.YemekId == aId.Value);
+            else if (!string.IsNullOrEmpty(HttpContext.Session.GetString(sKeyA))) secilenAnaYemek = guvenliListe.FirstOrDefault(x => x.YemekId == int.Parse(HttpContext.Session.GetString(sKeyA)));
             if (secilenAnaYemek == null) secilenAnaYemek = guvenliListe.Where(x => x.Kategori.Contains("Et") || x.Kategori.Contains("Tavuk") || x.Kategori.Contains("Balýk")).OrderBy(x => rand.Next()).FirstOrDefault();
 
             TblYemekler secilenTamamlayici = null;
-            if (yId == 0)
-            {
-                secilenTamamlayici = guvenliListe.Where(x => x.Kategori.Contains("Salatalar") || x.Kategori.Contains("Zeytinyaðlýlar")).OrderBy(x => rand.Next()).FirstOrDefault();
-            }
-            else if (yId.HasValue && yId > 0)
-            {
-                secilenTamamlayici = guvenliListe.FirstOrDefault(x => x.YemekId == yId.Value);
-            }
-            else if (!string.IsNullOrEmpty(HttpContext.Session.GetString(sKeyY)))
-            {
-                secilenTamamlayici = guvenliListe.FirstOrDefault(x => x.YemekId == int.Parse(HttpContext.Session.GetString(sKeyY)));
-            }
+            if (yId == 0) secilenTamamlayici = guvenliListe.Where(x => x.Kategori.Contains("Salatalar") || x.Kategori.Contains("Zeytinyaðlýlar")).OrderBy(x => rand.Next()).FirstOrDefault();
+            else if (yId.HasValue && yId > 0) secilenTamamlayici = guvenliListe.FirstOrDefault(x => x.YemekId == yId.Value);
+            else if (!string.IsNullOrEmpty(HttpContext.Session.GetString(sKeyY))) secilenTamamlayici = guvenliListe.FirstOrDefault(x => x.YemekId == int.Parse(HttpContext.Session.GetString(sKeyY)));
             if (secilenTamamlayici == null) secilenTamamlayici = guvenliListe.Where(x => x.Kategori.Contains("Salatalar") || x.Kategori.Contains("Zeytinyaðlýlar")).OrderBy(x => rand.Next()).FirstOrDefault();
 
             if (secilenCorba != null) HttpContext.Session.SetString(sKeyC, secilenCorba.YemekId.ToString());
@@ -299,11 +248,14 @@ namespace KlinikBeslenmeApp.Controllers
             }
             return View(gercekMenu);
         }
+
         public IActionResult CikisYap()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("GirisYap");
         }
+
+        // --- YENÝ YEMEK GÜNLÜÐÜ MODÜLÜ (EKSÝKSÝZ) ---
         [HttpGet]
         public IActionResult YemekGunluguEkle(int id)
         {
@@ -316,7 +268,6 @@ namespace KlinikBeslenmeApp.Controllers
             var tumYemekler = _context.TblYemeklers.OrderBy(x => x.YemekAdi).ToList();
             var yemekKalorileri = new Dictionary<int, double>();
 
-           
             foreach (var y in tumYemekler)
             {
                 var detaylar = (from r in _context.TblYemekMalzemeleris
@@ -339,7 +290,7 @@ namespace KlinikBeslenmeApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult YemekGunluguEkle(TblYemekGunlugu data, List<int> secilenYemekler)
+        public IActionResult YemekGunluguEkle(TblYemekGunlugu data, List<int> secilenYemekler, List<double> secilenPorsiyonlar)
         {
             if (secilenYemekler == null || secilenYemekler.Count == 0)
             {
@@ -348,20 +299,22 @@ namespace KlinikBeslenmeApp.Controllers
             }
 
             DateTime ortakKayitZamani = DateTime.Now;
-
-            // rastgele benzersiz ýd oluþtur (5a8f9c1b) gibi
             string benzersizKayitId = Guid.NewGuid().ToString().Substring(0, 8);
 
-            foreach (var yId in secilenYemekler)
+            for (int i = 0; i < secilenYemekler.Count; i++)
             {
+                // Güvenlik önlemi: Eðer JS tarafýnda porsiyon boþ gelirse varsayýlan 1 al
+                double porsiyon = (secilenPorsiyonlar != null && secilenPorsiyonlar.Count > i) ? secilenPorsiyonlar[i] : 1.0;
+
                 var yeniKayit = new TblYemekGunlugu
                 {
                     HastaId = data.HastaId,
-                    YemekId = yId,
+                    YemekId = secilenYemekler[i],
+                    Porsiyon = porsiyon,
                     OgunTipi = data.OgunTipi,
                     Aciklama = data.Aciklama,
                     TuketimTarihi = ortakKayitZamani,
-                    KayitId = benzersizKayitId 
+                    KayitId = benzersizKayitId
                 };
                 _context.TblYemekGunlugus.Add(yeniKayit);
             }
@@ -370,10 +323,42 @@ namespace KlinikBeslenmeApp.Controllers
             TempData["Mesaj"] = "Afiyet olsun! Bütün öðünlerin baþarýyla kaydedildi.";
             return RedirectToAction("AnaPanel", new { id = data.HastaId });
         }
+
+        // --- GEÇMÝÞÝ LÝSTELEME MODÜLÜ ---
+        [HttpGet]
+        public IActionResult YemekGecmisi(int id, DateTime? filtreTarih = null)
+        {
+            var hasta = _context.TblHastalars.Find(id);
+            if (hasta == null) return RedirectToAction("GirisYap");
+
+            ViewBag.HastaId = id;
+            ViewBag.HastaAd = hasta.Ad;
+
+            DateTime seciliTarih = filtreTarih ?? DateTime.Today;
+            ViewBag.SeciliTarih = seciliTarih.ToString("yyyy-MM-dd");
+
+            var gecmis = (from g in _context.TblYemekGunlugus
+                          join y in _context.TblYemeklers on g.YemekId equals y.YemekId
+                          where g.HastaId == id && g.TuketimTarihi.Date == seciliTarih.Date
+                          orderby g.TuketimTarihi descending
+                          select new YemekGecmisiViewModel
+                          {
+                              GunlukId = g.GunlukId,
+                              YemekAdi = y.YemekAdi,
+                              Kategori = y.Kategori,
+                              OgunTipi = g.OgunTipi,
+                              TuketimTarihi = g.TuketimTarihi,
+                              Aciklama = g.Aciklama
+                          }).ToList();
+
+            return View(gecmis);
+        }
     }
+
+    // --- VIEW MODEL SINIFLARI (SAYFAYA VERÝ TAÞIYANLAR) ---
     public class GunlukMenuViewModel
     {
-        public int YemekId { get; set; } 
+        public int YemekId { get; set; }
         public string YemekAdi { get; set; }
         public string Kategori { get; set; }
         public double ToplamKalori { get; set; }
@@ -381,6 +366,15 @@ namespace KlinikBeslenmeApp.Controllers
         public double ToplamKarb { get; set; }
         public double ToplamSodyum { get; set; }
         public int MaxGlisemikIndeks { get; set; }
+    }
 
+    public class YemekGecmisiViewModel
+    {
+        public int GunlukId { get; set; }
+        public string YemekAdi { get; set; }
+        public string Kategori { get; set; }
+        public string? OgunTipi { get; set; }
+        public DateTime TuketimTarihi { get; set; }
+        public string? Aciklama { get; set; }
     }
 }

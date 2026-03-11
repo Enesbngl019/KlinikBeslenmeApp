@@ -31,6 +31,7 @@
                         <option value="Atıştırmalık / Kaçamak">🍫 Atıştırmalık / Tadımlık</option>
                     </select>
                 </div>
+
                 <div class="mb-4 text-start">
                     <label class="fw-bold text-dark mb-1">Ne Yedin?</label>
 
@@ -45,6 +46,15 @@
                                     </option>
                                 }
                             </select>
+
+                            <select name="secilenPorsiyonlar" class="form-select porsiyon-secici ms-2" style="max-width: 140px;" onchange="kaloriGuncelle(this)" required>
+                                <option value="0.25">Çeyrek</option>
+                                <option value="0.5">Yarım</option>
+                                <option value="1" selected>1 Porsiyon</option>
+                                <option value="1.5">1.5 Porsiyon</option>
+                                <option value="2">Duble (2x)</option>
+                            </select>
+
                             <span class="badge bg-warning text-dark ms-2 kalori-etiketi shadow-sm" style="min-width: 85px; font-size: 1rem;">0 kcal</span>
                         </div>
                     </div>
@@ -75,77 +85,68 @@
     </div>
 </div>
 
-<script>
- 
-    function kaloriGuncelle(selectElement) {
-        var secilenOption = selectElement.options[selectElement.selectedIndex];
-        var kaloriDegeri = secilenOption.getAttribute('data-kalori'); 
+@section Scripts {
+    <script>
+        function kaloriGuncelle(tetikleyenElement) {
+            var satir = tetikleyenElement.closest('.yemek-satiri');
+            var yemekSecici = satir.querySelector('.yemek-secici');
+            var porsiyonSecici = satir.querySelector('.porsiyon-secici');
+            var etiket = satir.querySelector('.kalori-etiketi');
 
+            var secilenOption = yemekSecici.options[yemekSecici.selectedIndex];
+            var bazKalori = parseFloat(secilenOption.getAttribute('data-kalori')) || 0;
+            var porsiyonCarpani = parseFloat(porsiyonSecici.value) || 1;
 
-        var etiket = selectElement.parentElement.querySelector('.kalori-etiketi');
-        etiket.innerText = kaloriDegeri + " kcal";
+            var gercekKalori = Math.round(bazKalori * porsiyonCarpani);
 
-        genelToplamiHesapla();
-    }
+            etiket.innerText = gercekKalori + " kcal";
+            genelToplamiHesapla();
+        }
 
-    function genelToplamiHesapla() {
-        var toplam = 0;
-        var butunSeciciler = document.querySelectorAll('.yemek-secici');
+        function genelToplamiHesapla() {
+            var toplam = 0;
+            var butunSatirlar = document.querySelectorAll('.yemek-satiri');
 
-        butunSeciciler.forEach(function(selectBox) {
-            var secilenOption = selectBox.options[selectBox.selectedIndex];
-            if(secilenOption.value !== "") {
-                toplam += parseFloat(secilenOption.getAttribute('data-kalori'));
-            }
-        });
+            butunSatirlar.forEach(function(satir) {
+                var yemekSecici = satir.querySelector('.yemek-secici');
+                var porsiyonSecici = satir.querySelector('.porsiyon-secici');
 
-        document.getElementById('toplamKaloriSonuc').innerText = Math.round(toplam);
-    }
+                var secilenOption = yemekSecici.options[yemekSecici.selectedIndex];
+                if(secilenOption.value !== "") {
+                    var bazKalori = parseFloat(secilenOption.getAttribute('data-kalori')) || 0;
+                    var porsiyonCarpani = parseFloat(porsiyonSecici.value) || 1;
+                    toplam += (bazKalori * porsiyonCarpani);
+                }
+            });
 
-    function yeniYemekSatiriEkle() {
-        var container = document.getElementById("yemeklerContainer");
-        var ilkSatir = document.querySelector(".yemek-satiri");
+            document.getElementById('toplamKaloriSonuc').innerText = Math.round(toplam);
+        }
 
-        var yeniSatir = ilkSatir.cloneNode(true);
-        var selectBox = yeniSatir.querySelector("select");
-        var kaloriEtiketi = yeniSatir.querySelector(".kalori-etiketi");
+        function yeniYemekSatiriEkle() {
+            var container = document.getElementById("yemeklerContainer");
+            var ilkSatir = document.querySelector(".yemek-satiri");
 
-        selectBox.value = "";
-        kaloriEtiketi.innerText = "0 kcal";
+            var yeniSatir = ilkSatir.cloneNode(true);
+            var yemekSecici = yeniSatir.querySelector(".yemek-secici");
+            var porsiyonSecici = yeniSatir.querySelector(".porsiyon-secici");
+            var kaloriEtiketi = yeniSatir.querySelector(".kalori-etiketi");
 
-        var silButonu = document.createElement("button");
-        silButonu.type = "button";
-        silButonu.className = "btn btn-danger ms-2 shadow-sm";
-        silButonu.innerHTML = "<i class='bi bi-trash'></i>";
+            yemekSecici.value = "";
+            porsiyonSecici.value = "1";
+            kaloriEtiketi.innerText = "0 kcal";
 
-        silButonu.onclick = function() {
-            container.removeChild(yeniSatir);
-            genelToplamiHesapla(); 
-        };
+            var silButonu = document.createElement("button");
+            silButonu.type = "button";
+            silButonu.className = "btn btn-danger ms-2 shadow-sm";
+            silButonu.innerHTML = "<i class='bi bi-trash'></i>";
 
-        yeniSatir.appendChild(silButonu);
-        container.appendChild(yeniSatir);
-    }
-</script>
-    function yeniYemekSatiriEkle() {
+            silButonu.onclick = function() {
+                container.removeChild(yeniSatir);
+                genelToplamiHesapla();
+            };
 
-        var container = document.getElementById("yemeklerContainer");
-        var ilkSatir = document.querySelector(".yemek-satiri");
-
-        var yeniSatir = ilkSatir.cloneNode(true);
-
-        yeniSatir.querySelector("select").value = "";
-
-        var silButonu = document.createElement("button");
-        silButonu.type = "button";
-        silButonu.className = "btn btn-danger ms-2";
-        silButonu.innerHTML = "<i class='bi bi-trash'></i>";
-
-        silButonu.onclick = function() {
-            container.removeChild(yeniSatir);
-        };
-
-        yeniSatir.appendChild(silButonu);
-        container.appendChild(yeniSatir);
-    }
-</script>
+            yeniSatir.appendChild(silButonu);
+            container.appendChild(yeniSatir);
+        }
+    </script>
+}
