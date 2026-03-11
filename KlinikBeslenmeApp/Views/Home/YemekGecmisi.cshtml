@@ -1,0 +1,90 @@
+﻿@model IEnumerable<KlinikBeslenmeApp.Controllers.YemekGecmisiViewModel>
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h2 class="fw-bold text-primary"><i class="bi bi-clock-history"></i> Yemek Geçmişim</h2>
+        <a href="@Url.Action("AnaPanel", new { id = ViewBag.HastaId })" class="btn btn-secondary btn-sm shadow-sm">Panoya Dön</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 bg-light" style="border-radius: 10px;">
+        <div class="card-body">
+            <form asp-action="YemekGecmisi" method="get" class="row align-items-end">
+                <input type="hidden" name="id" value="@ViewBag.HastaId" />
+
+                <div class="col-md-4">
+                    <label class="fw-bold text-muted mb-1">Tarihe Göre Filtrele:</label>
+                    <input type="date" name="filtreTarih" class="form-control" value="@ViewBag.SeciliTarih" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="bi bi-search"></i> Getir</button>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a asp-action="YemekGunluguEkle" asp-route-id="@ViewBag.HastaId" class="btn btn-success fw-bold shadow-sm">
+                        <i class="bi bi-plus-circle"></i> Yeni Öğün Ekle
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-lg border-0" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th class="ps-4">Saat</th>
+                            <th>Öğün Tipi</th>
+                            <th>Yemek Adı</th>
+                            <th>Kategori</th>
+                            <th>Açıklama / Not</th>
+                            <th class="text-center pe-4">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
+                                    Bu tarihte kaydedilmiş herhangi bir öğün bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-secondary">@item.TuketimTarihi.ToString("HH:mm")</td>
+                                    <td><span class="badge bg-info text-dark">@item.OgunTipi</span></td>
+                                    <td class="fw-bold">@item.YemekAdi</td>
+                                    <td class="text-muted small">@item.Kategori</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.Aciklama))
+                                        {
+                                            <span class="text-muted" style="font-style: italic;">"@item.Aciklama"</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <form asp-action="YemekGunluguSil" method="post" class="d-inline" onsubmit="return confirm('Bu öğünü geçmişinden silmek istediğine emin misin?');">
+                                            <input type="hidden" name="gunlukId" value="@item.GunlukId" />
+                                            <input type="hidden" name="hastaId" value="@ViewBag.HastaId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Sil">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

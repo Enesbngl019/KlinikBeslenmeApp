@@ -353,6 +353,24 @@ namespace KlinikBeslenmeApp.Controllers
 
             return View(gecmis);
         }
+
+        [HttpPost]
+        public IActionResult YemekGunluguSil(int gunlukId, int hastaId)
+        {
+            // Veritabanýndan o anki satýrý buluyoruz
+            var silinecekKayit = _context.TblYemekGunlugus.Find(gunlukId);
+
+            if (silinecekKayit != null)
+            {
+                // Veritabanýndan uçur ve kaydet
+                _context.TblYemekGunlugus.Remove(silinecekKayit);
+                _context.SaveChanges();
+                TempData["BasariMesaji"] = "Seçilen öðün geçmiþten baþarýyla silindi!";
+            }
+
+            // Silme bitince adamý tekrar Yemek Geçmiþi sayfasýna geri fýrlatýyoruz
+            return RedirectToAction("YemekGecmisi", new { id = hastaId });
+        }
     }
 
     // --- VIEW MODEL SINIFLARI (SAYFAYA VERÝ TAÞIYANLAR) ---
