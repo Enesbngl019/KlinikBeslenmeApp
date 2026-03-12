@@ -348,7 +348,8 @@ namespace KlinikBeslenmeApp.Controllers
                               Kategori = y.Kategori,
                               OgunTipi = g.OgunTipi,
                               TuketimTarihi = g.TuketimTarihi.Value,
-                              Aciklama = g.Aciklama
+                              Aciklama = g.Aciklama,
+                              KayitId = g.KayitId
                           }).ToList();
 
             
@@ -394,7 +395,7 @@ namespace KlinikBeslenmeApp.Controllers
         public string Kategori { get; set; }
         public string? OgunTipi { get; set; }
         public DateTime? TuketimTarihi { get; set; }
-
         public string? Aciklama { get; set; }
+        public string KayitId { get; set; }
     }
 }
