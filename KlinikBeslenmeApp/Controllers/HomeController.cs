@@ -365,18 +365,15 @@ namespace KlinikBeslenmeApp.Controllers
         [HttpPost]
         public IActionResult YemekGunluguSil(int gunlukId, int hastaId)
         {
-            
-            var silinecekKayit = _context.TblYemekGunlugus.Find(gunlukId);
-
-            if (silinecekKayit != null)
+            var silinecekYemek = _context.TblYemekGunlugus.Find(gunlukId);
+            if (silinecekYemek != null)
             {
-                
-                _context.TblYemekGunlugus.Remove(silinecekKayit);
+                _context.TblYemekGunlugus.Remove(silinecekYemek);
                 _context.SaveChanges();
-                TempData["BasariMesaji"] = "Seçilen öðün geçmiþten baþarýyla silindi!";
+
+                TempData["Mesaj"] = "Öðün baþarýyla silindi!";
             }
 
-            
             return RedirectToAction("YemekGecmisi", new { id = hastaId });
         }
     }
