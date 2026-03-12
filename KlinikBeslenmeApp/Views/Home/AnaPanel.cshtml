@@ -17,6 +17,44 @@
         </div>
     </div>
 
+    <div class="row mb-4 mt-3">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white shadow rounded-4 border-0 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="display-4 me-3"><i class="bi bi-calendar2-check"></i></div>
+                    <div>
+                        <h6 class="text-uppercase mb-1 opacity-75">Bugünkü Öğün</h6>
+                        <h2 class="mb-0 fw-bold">@ViewBag.BugunOgunSayisi <span class="fs-6 fw-normal">Kez</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white shadow rounded-4 border-0 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="display-4 me-3"><i class="bi bi-egg-fried"></i></div>
+                    <div>
+                        <h6 class="text-uppercase mb-1 opacity-75">Toplam Çeşit</h6>
+                        <h2 class="mb-0 fw-bold">@ViewBag.BugunCesitSayisi <span class="fs-6 fw-normal">Farklı</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-warning text-dark shadow rounded-4 border-0 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="display-4 me-3"><i class="bi bi-pie-chart"></i></div>
+                    <div>
+                        <h6 class="text-uppercase mb-1 opacity-75">Toplam Porsiyon</h6>
+                        <h2 class="mb-0 fw-bold">@ViewBag.BugunPorsiyon <span class="fs-6 fw-normal">Pors.</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (Model.ColyakMi == true || Model.DiyabetMi == true || Model.TansiyonHastasiMi == true)
     {
         <div class="alert alert-warning shadow-sm border-start border-warning border-5 mb-4" role="alert">
@@ -47,14 +85,21 @@
                 <div class="card-body py-4">
                     <div class="display-3 mb-2">⚖️</div>
                     <h5 class="text-muted fw-bold">Vücut Kitle İndeksi</h5>
-                    @if (ViewBag.VKI != null)
+                    @if (Model.Boy != null && Model.Kilo != null && Model.Boy > 0)
                     {
-                        <h2 class="display-5 fw-bold @(ViewBag.VKI > 25 ? "text-danger" : "text-success")">@ViewBag.VKI</h2>
-                        <span class="text-muted">Son Güncelleme: Bugün</span>
+                        double boyMetre = Convert.ToDouble(Model.Boy) / 100.0;
+                        double vki = Convert.ToDouble(Model.Kilo) / (boyMetre * boyMetre);
+                        double yuvarlanmisVki = Math.Round(vki, 1);
+
+                        string durum = yuvarlanmisVki < 18.5 ? "Zayıf" : (yuvarlanmisVki <= 24.9 ? "Normal" : (yuvarlanmisVki <= 29.9 ? "Fazla Kilolu" : "Obez"));
+                        string renk = yuvarlanmisVki <= 24.9 ? "success" : (yuvarlanmisVki < 18.5 ? "warning" : "danger");
+
+                        <h2 class="display-5 fw-bold text-@renk mt-3 mb-1">@yuvarlanmisVki</h2>
+                        <h6 class="text-muted">Durum: <span class="badge bg-@renk fs-6">@durum</span></h6>
                     }
                     else
                     {
-                        <p class="text-danger fw-bold">Lütfen profilinizden boy ve kilonuzu güncelleyin.</p>
+                        <p class="text-danger fw-bold mt-3">Lütfen profilinizden boy ve kilonuzu güncelleyin.</p>
                     }
                 </div>
             </div>

@@ -82,22 +82,28 @@ namespace KlinikBeslenmeApp.Controllers
                 return View(yeniHasta);
             }
         }
-
         [HttpGet]
         public IActionResult AnaPanel(int id)
         {
             var hasta = _context.TblHastalars.Find(id);
             if (hasta == null) return RedirectToAction("GirisYap");
 
-            if (hasta.Boy > 0 && hasta.Kilo > 0)
-            {
-                double boyMetre = (double)hasta.Boy / 100;
-                double vki = (double)(hasta.Kilo / (boyMetre * boyMetre));
-                ViewBag.VKI = Math.Round(vki, 1);
-            }
+            
+            DateTime bugun = DateTime.Today;
+            var bugunkuYemekler = _context.TblYemekGunlugus
+                                          .Where(x => x.HastaId == id && x.TuketimTarihi != null && x.TuketimTarihi.Value.Date == bugun)
+                                          .ToList();
+
+            
+            ViewBag.BugunOgunSayisi = bugunkuYemekler.Select(x => x.KayitId).Distinct().Count();
+            
+            ViewBag.BugunCesitSayisi = bugunkuYemekler.Count;
+            
+            ViewBag.BugunPorsiyon = bugunkuYemekler.Sum(x => x.Porsiyon) ?? 0;
+         
+
             return View(hasta);
         }
-
         public IActionResult Profilim()
         {
             var email = HttpContext.Session.GetString("Email");

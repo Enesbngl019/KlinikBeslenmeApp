@@ -39,8 +39,7 @@
         <div class="row">
             @foreach (var paket in Model.GroupBy(m => m.KayitId))
             {
-                var ilkYemek = paket.First(); // Paketin içindeki ilk yemeğin saatini ve öğün tipini başlığa yazmak için alıyoruz
-
+                var ilkYemek = paket.First(); 
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm border-0 h-100" style="border-radius: 15px; overflow: hidden;">
 
