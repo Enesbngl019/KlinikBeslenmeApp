@@ -255,7 +255,7 @@ namespace KlinikBeslenmeApp.Controllers
             return RedirectToAction("GirisYap");
         }
 
-        // --- YENÝ YEMEK GÜNLÜÐÜ MODÜLÜ (EKSÝKSÝZ) ---
+        
         [HttpGet]
         public IActionResult YemekGunluguEkle(int id)
         {
@@ -290,7 +290,7 @@ namespace KlinikBeslenmeApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult YemekGunluguEkle(TblYemekGunlugu data, List<int> secilenYemekler, List<double> secilenPorsiyonlar)
+        public IActionResult YemekGunluguEkle(TblYemekGunlugu data, List<int> secilenYemekler, List<double> secilenPorsiyonlar, DateTime? ozelTarih)
         {
             if (secilenYemekler == null || secilenYemekler.Count == 0)
             {
@@ -298,12 +298,11 @@ namespace KlinikBeslenmeApp.Controllers
                 return RedirectToAction("YemekGunluguEkle", new { id = data.HastaId });
             }
 
-            DateTime ortakKayitZamani = DateTime.Now;
+            DateTime ortakKayitZamani = ozelTarih ?? DateTime.Now;
             string benzersizKayitId = Guid.NewGuid().ToString().Substring(0, 8);
 
             for (int i = 0; i < secilenYemekler.Count; i++)
             {
-                // Güvenlik önlemi: Eðer JS tarafýnda porsiyon boþ gelirse varsayýlan 1 al
                 double porsiyon = (secilenPorsiyonlar != null && secilenPorsiyonlar.Count > i) ? secilenPorsiyonlar[i] : 1.0;
 
                 var yeniKayit = new TblYemekGunlugu
@@ -313,7 +312,7 @@ namespace KlinikBeslenmeApp.Controllers
                     Porsiyon = porsiyon,
                     OgunTipi = data.OgunTipi,
                     Aciklama = data.Aciklama,
-                    TuketimTarihi = ortakKayitZamani,
+                    TuketimTarihi = ortakKayitZamani, 
                     KayitId = benzersizKayitId
                 };
                 _context.TblYemekGunlugus.Add(yeniKayit);
@@ -323,8 +322,8 @@ namespace KlinikBeslenmeApp.Controllers
             TempData["Mesaj"] = "Afiyet olsun! Bütün öðünlerin baþarýyla kaydedildi.";
             return RedirectToAction("AnaPanel", new { id = data.HastaId });
         }
-
-        // --- GEÇMÝÞÝ LÝSTELEME MODÜLÜ ---
+        
+        [HttpGet]
         [HttpGet]
         public IActionResult YemekGecmisi(int id, DateTime? filtreTarih = null)
         {
@@ -339,7 +338,8 @@ namespace KlinikBeslenmeApp.Controllers
 
             var gecmis = (from g in _context.TblYemekGunlugus
                           join y in _context.TblYemeklers on g.YemekId equals y.YemekId
-                          where g.HastaId == id && g.TuketimTarihi.Date == seciliTarih.Date
+                         
+                          where g.HastaId == id && g.TuketimTarihi != null && g.TuketimTarihi.Value.Date == seciliTarih.Date
                           orderby g.TuketimTarihi descending
                           select new YemekGecmisiViewModel
                           {
@@ -347,33 +347,34 @@ namespace KlinikBeslenmeApp.Controllers
                               YemekAdi = y.YemekAdi,
                               Kategori = y.Kategori,
                               OgunTipi = g.OgunTipi,
-                              TuketimTarihi = g.TuketimTarihi,
+                              TuketimTarihi = g.TuketimTarihi.Value,
                               Aciklama = g.Aciklama
                           }).ToList();
 
+            
             return View(gecmis);
         }
 
         [HttpPost]
         public IActionResult YemekGunluguSil(int gunlukId, int hastaId)
         {
-            // Veritabanýndan o anki satýrý buluyoruz
+            
             var silinecekKayit = _context.TblYemekGunlugus.Find(gunlukId);
 
             if (silinecekKayit != null)
             {
-                // Veritabanýndan uçur ve kaydet
+                
                 _context.TblYemekGunlugus.Remove(silinecekKayit);
                 _context.SaveChanges();
                 TempData["BasariMesaji"] = "Seçilen öðün geçmiþten baþarýyla silindi!";
             }
 
-            // Silme bitince adamý tekrar Yemek Geçmiþi sayfasýna geri fýrlatýyoruz
+            
             return RedirectToAction("YemekGecmisi", new { id = hastaId });
         }
     }
 
-    // --- VIEW MODEL SINIFLARI (SAYFAYA VERÝ TAÞIYANLAR) ---
+    
     public class GunlukMenuViewModel
     {
         public int YemekId { get; set; }
@@ -392,7 +393,8 @@ namespace KlinikBeslenmeApp.Controllers
         public string YemekAdi { get; set; }
         public string Kategori { get; set; }
         public string? OgunTipi { get; set; }
-        public DateTime TuketimTarihi { get; set; }
+        public DateTime? TuketimTarihi { get; set; }
+
         public string? Aciklama { get; set; }
     }
 }

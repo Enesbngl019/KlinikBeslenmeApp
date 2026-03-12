@@ -12,10 +12,10 @@ namespace KlinikBeslenmeApp.Models
         public int HastaId { get; set; }
         public int YemekId { get; set; }
         public string OgunTipi { get; set; }
-        public DateTime TuketimTarihi { get; set; }
-        public string Aciklama { get; set; }
+        public DateTime? TuketimTarihi { get; set; }
+        public string? Aciklama { get; set; }
 
-        public double Porsiyon { get; set; } = 1.0;
+        public double? Porsiyon { get; set; } = 1.0;
         public string? KayitId { get; set; }
     }
 }
