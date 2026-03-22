@@ -1,0 +1,65 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zorunlu Şifre Değişimi</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #212529;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-shield-lock-fill text-warning" style="font-size: 4rem;"></i>
+                            <h3 class="fw-bold mt-2">Güvenlik Uyarısı</h3>
+                            <p class="text-muted">Hesabınızın güvenliği için sistem tarafından verilen geçici şifrenizi yenilemeniz gerekmektedir.</p>
+                        </div>
+
+                        @if (TempData["Uyari"] != null)
+                        {
+                            <div class="alert alert-warning text-center fw-bold">@TempData["Uyari"]</div>
+                        }
+                        @if (ViewBag.Hata != null)
+                        {
+                            <div class="alert alert-danger text-center fw-bold">@ViewBag.Hata</div>
+                        }
+
+                        <form asp-controller="Doktor" asp-action="SifreDegistir" method="post">
+                            <div class="mb-3">
+                                <label class="fw-bold">Yeni Şifreniz</label>
+                                <input type="password" name="YeniSifre" class="form-control form-control-lg bg-light" required />
+                            </div>
+                            <div class="mb-4">
+                                <label class="fw-bold">Yeni Şifre (Tekrar)</label>
+                                <input type="password" name="YeniSifreTekrar" class="form-control form-control-lg bg-light" required />
+                            </div>
+                            <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold shadow"><i class="bi bi-check-circle"></i> Şifremi Güncelle ve Devam Et</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
