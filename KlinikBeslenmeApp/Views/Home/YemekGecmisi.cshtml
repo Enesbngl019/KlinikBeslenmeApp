@@ -72,9 +72,9 @@
                                             <form asp-action="YemekGunluguSil" method="post" class="d-inline" onsubmit="return confirm('Bu yemeği silmek istediğine emin misin?');">
                                                 <input type="hidden" name="gunlukId" value="@item.GunlukId" />
                                                 <input type="hidden" name="hastaId" value="@ViewBag.HastaId" />
-                                                <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Sil">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                <a asp-action="YemekGunluguDuzenle" asp-route-gunlukId="@item.GunlukId" class="btn btn-sm btn-warning shadow-sm me-1 text-dark fw-bold">
+                                                    <i class="bi bi-pencil-square"></i> Düzenle
+                                                </a>
                                             </form>
                                         </div>
                                     </li>

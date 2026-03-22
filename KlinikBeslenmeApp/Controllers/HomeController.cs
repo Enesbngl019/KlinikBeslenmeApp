@@ -376,6 +376,43 @@ namespace KlinikBeslenmeApp.Controllers
 
             return RedirectToAction("YemekGecmisi", new { id = hastaId });
         }
+
+
+        [HttpGet]
+        public IActionResult YemekGunluguDuzenle(int gunlukId)
+        {
+            var yemek = _context.TblYemekGunlugus.Find(gunlukId);
+            if (yemek == null) return RedirectToAction("GirisYap");
+
+
+            ViewBag.Yemekler = _context.TblYemeklers.ToList();
+            return View(yemek);
+        }
+
+
+        [HttpPost]
+        public IActionResult YemekGunluguDuzenle(KlinikBeslenmeApp.Models.TblYemekGunlugu guncelYemek)
+        {
+            var mevcutYemek = _context.TblYemekGunlugus.Find(guncelYemek.GunlukId);
+            if (mevcutYemek != null)
+            {
+
+                mevcutYemek.YemekId = guncelYemek.YemekId;
+                mevcutYemek.Porsiyon = guncelYemek.Porsiyon;
+                mevcutYemek.OgunTipi = guncelYemek.OgunTipi;
+                mevcutYemek.TuketimTarihi = guncelYemek.TuketimTarihi;
+                mevcutYemek.Aciklama = guncelYemek.Aciklama;
+
+                _context.SaveChanges();
+
+
+                TempData["Mesaj"] = "Öðün baþarýyla güncellendi!";
+
+                return RedirectToAction("YemekGecmisi", new { id = mevcutYemek.HastaId });
+            }
+            return RedirectToAction("GirisYap");
+        }
+
     }
 
     

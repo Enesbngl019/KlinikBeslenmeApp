@@ -1,0 +1,68 @@
+﻿@model KlinikBeslenmeApp.Models.TblYemekGunlugu
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                <div class="card-header bg-primary text-white p-4" style="border-radius: 15px 15px 0 0;">
+                    <h3 class="mb-0 fw-bold"><i class="bi bi-pencil-square"></i> Öğün Düzenle</h3>
+                </div>
+                <div class="card-body p-4 bg-light">
+
+                    <form asp-action="YemekGunluguDuzenle" method="post">
+                        <input type="hidden" asp-for="GunlukId" />
+                        <input type="hidden" asp-for="HastaId" />
+                        <input type="hidden" asp-for="KayitId" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="fw-bold text-muted mb-1">Yemek Seçimi</label>
+                                <select asp-for="YemekId" class="form-select form-select-lg shadow-sm" required>
+                                    <option value="">-- Yemek Seçin --</option>
+                                    @if (ViewBag.Yemekler != null)
+                                    {
+                                        foreach (var yemek in ViewBag.Yemekler)
+                                        {
+                                            <option value="@yemek.YemekId">@yemek.YemekAdi</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold text-muted mb-1">Porsiyon</label>
+                                <input asp-for="Porsiyon" type="number" step="0.5" min="0.5" class="form-control form-control-lg shadow-sm" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold text-muted mb-1">Öğün Tipi</label>
+                                <select asp-for="OgunTipi" class="form-select form-select-lg shadow-sm" required>
+                                    <option value="Sabah">Sabah</option>
+                                    <option value="Öğle">Öğle</option>
+                                    <option value="Akşam">Akşam</option>
+                                    <option value="Ara Öğün">Ara Öğün</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold text-muted mb-1">Tüketim Zamanı</label>
+                                <input asp-for="TuketimTarihi" type="datetime-local" class="form-control form-control-lg shadow-sm" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold text-muted mb-1">Açıklama / Not (İsteğe Bağlı)</label>
+                            <textarea asp-for="Aciklama" class="form-control shadow-sm" rows="3" placeholder="Örn: Çok yağlıydı, yarısını yiyebildim..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="YemekGecmisi" asp-route-id="@Model.HastaId" class="btn btn-outline-secondary btn-lg fw-bold px-4">İptal</a>
+                            <button type="submit" class="btn btn-success btn-lg fw-bold px-5 shadow"><i class="bi bi-check-circle"></i> Değişiklikleri Kaydet</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
