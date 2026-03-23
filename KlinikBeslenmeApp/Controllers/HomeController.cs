@@ -50,7 +50,13 @@ namespace KlinikBeslenmeApp.Controllers
             return View();
         }
 
-        public IActionResult KayitOl() { return View(); }
+        [HttpGet]
+        public IActionResult KayitOl()
+        {
+           
+            ViewBag.Doktorlar = _context.TblDoktorlars.ToList();
+            return View();
+        }
 
         [HttpPost]
         public IActionResult KayitOl(TblHastalar yeniHasta)
@@ -59,8 +65,38 @@ namespace KlinikBeslenmeApp.Controllers
             if (mailKontrol != null)
             {
                 ViewBag.HataMesaji = "Bu e-posta adresi zaten kayýtlýdýr!";
+                ViewBag.Doktorlar = _context.TblDoktorlars.ToList(); 
                 return View(yeniHasta);
             }
+
+           
+            if (yeniHasta.DoktorId == null || yeniHasta.DoktorId == 0)
+            {
+              
+                var doktorHastaSayilari = _context.TblDoktorlars
+                    .Select(d => new {
+                        DoktorId = d.DoktorId,
+                        HastaSayisi = _context.TblHastalars.Count(h => h.DoktorId == d.DoktorId)
+                    }).ToList();
+
+                if (doktorHastaSayilari.Any())
+                {
+                 
+                    var minHastaSayisi = doktorHastaSayilari.Min(d => d.HastaSayisi);
+
+               
+                    var musaitDoktorlar = doktorHastaSayilari.Where(d => d.HastaSayisi == minHastaSayisi).ToList();
+
+                    var rastgele = new Random();
+                    int secilenIndex = rastgele.Next(musaitDoktorlar.Count);
+
+                    yeniHasta.DoktorId = musaitDoktorlar[secilenIndex].DoktorId;
+                }
+            }
+
+    
+            yeniHasta.DoktorOnayDurumu = 0;
+   
 
             if (!string.IsNullOrEmpty(yeniHasta.Telefon)) yeniHasta.Telefon = "+90" + yeniHasta.Telefon;
 
@@ -79,6 +115,7 @@ namespace KlinikBeslenmeApp.Controllers
             catch (Exception ex)
             {
                 ViewBag.HataMesaji = "Bir hata oluþtu: " + ex.Message;
+                ViewBag.Doktorlar = _context.TblDoktorlars.ToList();
                 return View(yeniHasta);
             }
         }

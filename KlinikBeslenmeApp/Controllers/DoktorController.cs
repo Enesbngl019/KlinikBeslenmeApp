@@ -79,13 +79,52 @@ namespace KlinikBeslenmeApp.Controllers
             return View();
         }
 
-
         public IActionResult AdminPanel()
         {
-            if (HttpContext.Session.GetInt32("DoktorId") == null) return RedirectToAction("GirisYap");
+            var doktorId = HttpContext.Session.GetInt32("DoktorId");
+            if (doktorId == null) return RedirectToAction("GirisYap");
 
 
-            return View();
+            ViewBag.OnayBekleyenler = _context.TblHastalars
+                .Where(x => x.DoktorId == doktorId && x.DoktorOnayDurumu == 0)
+                .OrderByDescending(x => x.HastaId)
+                .ToList();
+
+
+            var mevcutHastalar = _context.TblHastalars
+                .Where(x => x.DoktorId == doktorId && x.DoktorOnayDurumu == 1)
+                .OrderByDescending(x => x.HastaId)
+                .ToList();
+
+            return View(mevcutHastalar); 
+        }
+
+        [HttpPost]
+        public IActionResult HastaOnayla(int hastaId)
+        {
+            var hasta = _context.TblHastalars.Find(hastaId);
+            if (hasta != null)
+            {
+                hasta.DoktorOnayDurumu = 1; 
+                _context.SaveChanges();
+                TempData["Mesaj"] = $"{hasta.Ad} {hasta.Soyad} isimli hastayı başarıyla kabul ettiniz!";
+            }
+            return RedirectToAction("AdminPanel");
+        }
+
+
+        [HttpPost]
+        public IActionResult HastaReddet(int hastaId)
+        {
+            var hasta = _context.TblHastalars.Find(hastaId);
+            if (hasta != null)
+            {
+                hasta.DoktorId = null;
+                hasta.DoktorOnayDurumu = 0;
+                _context.SaveChanges();
+                TempData["Uyari"] = $"{hasta.Ad} {hasta.Soyad} isimli hastanın talebi reddedildi. Hasta genel havuza geri gönderildi.";
+            }
+            return RedirectToAction("AdminPanel");
         }
 
 

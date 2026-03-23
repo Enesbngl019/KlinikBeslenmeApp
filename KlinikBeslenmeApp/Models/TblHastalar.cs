@@ -32,8 +32,9 @@ public partial class TblHastalar
     public string Ad { get; set; } = null!;
 
     public string Soyad { get; set; } = null!;
-
     public string Email { get; set; } = null!;
     public DateTime DogumTarihi { get; set; }
     public int Yas { get; set; }
+    public int? DoktorId { get; set; }
+    public int? DoktorOnayDurumu { get; set; }
 }

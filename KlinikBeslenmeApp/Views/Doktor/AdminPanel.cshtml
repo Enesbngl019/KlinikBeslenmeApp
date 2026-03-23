@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<KlinikBeslenmeApp.Models.TblHastalar>
+@{
     Layout = "_Layout";
 }
 
@@ -7,7 +8,7 @@
         <div class="col-12 d-flex justify-content-between align-items-center bg-primary text-white p-4 shadow-sm" style="border-radius: 15px;">
             <div>
                 <h2 class="mb-0 fw-bold"><i class="bi bi-heart-pulse"></i> Klinik Yönetim Paneli</h2>
-                <p class="mb-0 opacity-75">Sisteme hoş geldiniz. Buradan hastalarınızı yönetebilirsiniz.</p>
+                <p class="mb-0 opacity-75">Dr. @Context.Session.GetString("DoktorAd") | Sisteme hoş geldiniz.</p>
             </div>
             <div>
                 <a asp-controller="Doktor" asp-action="CikisYap" class="btn btn-light text-danger fw-bold shadow-sm"><i class="bi bi-power"></i> Çıkış Yap</a>
@@ -19,17 +20,115 @@
     {
         <div class="alert alert-success fw-bold text-center shadow-sm"><i class="bi bi-check-circle-fill"></i> @TempData["Mesaj"]</div>
     }
+    @if (TempData["Uyari"] != null)
+    {
+        <div class="alert alert-warning fw-bold text-center shadow-sm"><i class="bi bi-exclamation-triangle-fill"></i> @TempData["Uyari"]</div>
+    }
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card shadow border-0" style="border-radius: 15px; border-left: 5px solid #ffc107 !important;">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-bell-fill text-warning"></i> Onay Bekleyen Hastalar</h5>
+                    <span class="badge bg-warning text-dark rounded-pill fs-6">@(((List<KlinikBeslenmeApp.Models.TblHastalar>)ViewBag.OnayBekleyenler).Count) Talep</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Hasta Adı Soyadı</th>
+                                    <th>Yaş</th>
+                                    <th>Kronik Rahatsızlık</th>
+                                    <th class="text-end pe-4">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (((List<KlinikBeslenmeApp.Models.TblHastalar>)ViewBag.OnayBekleyenler).Count == 0)
+                                {
+                                    <tr><td colspan="4" class="text-center py-4 text-muted">Şu an onay bekleyen yeni bir hasta talebi bulunmuyor.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var hasta in ViewBag.OnayBekleyenler)
+                                    {
+                                        <tr>
+                                            <td class="ps-4 fw-bold"><i class="bi bi-person text-secondary me-1"></i> @hasta.Ad @hasta.Soyad</td>
+                                            <td>@hasta.Yas</td>
+                                            <td>
+                                                @if (hasta.DiyabetMi == true)
+                                                {
+                                                    <span class="badge bg-danger rounded-pill">Diyabet</span>
+                                                }
+                                                @if (hasta.ColyakMi == true)
+                                                {
+                                                    <span class="badge bg-warning text-dark rounded-pill">Çölyak</span>
+                                                }
+                                                @if (hasta.TansiyonHastasiMi == true)
+                                                {
+                                                    <span class="badge bg-info text-dark rounded-pill">Tansiyon</span>
+                                                }
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <form method="post" class="d-inline">
+                                                    <input type="hidden" name="hastaId" value="@hasta.HastaId" />
+                                                    <button type="submit" asp-action="HastaOnayla" class="btn btn-sm btn-success fw-bold shadow-sm me-1"><i class="bi bi-check-lg"></i> Kabul Et</button>
+                                                    <button type="submit" asp-action="HastaReddet" class="btn btn-sm btn-outline-danger fw-bold shadow-sm" onclick="return confirm('Bu hastayı reddetmek ve havuza göndermek istediğinize emin misiniz?');"><i class="bi bi-x-lg"></i> Reddet</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-md-12">
-            <div class="card shadow border-0" style="border-radius: 15px;">
-                <div class="card-header bg-white border-bottom p-4">
-                    <h4 class="mb-0 fw-bold text-dark"><i class="bi bi-people-fill text-primary"></i> Kayıtlı Hastalar</h4>
+            <div class="card shadow border-0" style="border-radius: 15px; border-left: 5px solid #198754 !important;">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-people-fill text-success"></i> Mevcut Hastalarım</h5>
+                    <span class="badge bg-success rounded-pill fs-6">@Model.Count Kayıtlı</span>
                 </div>
-                <div class="card-body p-5 text-center">
-                    <i class="bi bi-hourglass-split text-muted" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3 text-muted fw-bold">Hasta listesi yükleniyor...</h5>
-                    <p class="text-muted">Bir sonraki adımda buraya efsanevi hasta yönetim tablosunu inşa edeceğiz!</p>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Hasta Adı Soyadı</th>
+                                    <th>Yaş</th>
+                                    <th>İletişim</th>
+                                    <th class="text-end pe-4">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Count == 0)
+                                {
+                                    <tr><td colspan="4" class="text-center py-5 text-muted fw-bold"><i class="bi bi-emoji-frown fs-2 block mb-2"></i><br />Henüz kabul ettiğiniz bir hasta bulunmuyor.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var hasta in Model)
+                                    {
+                                        <tr>
+                                            <td class="ps-4 fw-bold text-dark"><i class="bi bi-person-check-fill text-success me-2 fs-5"></i> @hasta.Ad @hasta.Soyad</td>
+                                            <td>@hasta.Yas</td>
+                                            <td class="text-muted">@hasta.Email</td>
+                                            <td class="text-end pe-4">
+                                                <a href="#" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                                                    Beslenme Detayları <i class="bi bi-arrow-right-circle"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
