@@ -189,6 +189,26 @@ namespace KlinikBeslenmeApp.Controllers
             try
             {
                 _context.TblHastalars.Update(guncelHasta);
+
+                if (guncelHasta.Kilo != null && guncelHasta.Kilo > 0)
+                {
+                    var sonKilo = _context.TblKiloGecmisis
+                                          .Where(x => x.HastaId == guncelHasta.HastaId)
+                                          .OrderByDescending(x => x.TartilmaTarihi)
+                                          .FirstOrDefault();
+
+                    if (sonKilo == null || sonKilo.Kilo != guncelHasta.Kilo)
+                    {
+                        var yeniKiloKaydi = new TblKiloGecmisi
+                        {
+                            HastaId = guncelHasta.HastaId,
+                            Kilo = guncelHasta.Kilo.Value,
+                            TartilmaTarihi = DateTime.Now
+                        };
+                        _context.TblKiloGecmisis.Add(yeniKiloKaydi);
+                    }
+                }
+
                 _context.SaveChanges();
                 TempData["BasariMesaji"] = "Profil bilgileriniz baþarýyla güncellendi!";
                 return RedirectToAction("Profilim", new { id = guncelHasta.HastaId });

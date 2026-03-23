@@ -163,7 +163,12 @@ namespace KlinikBeslenmeApp.Controllers
                               Porsiyon = g.Porsiyon ?? 1.0,
                               Aciklama = g.Aciklama
                           }).ToList();
-
+            ViewBag.GuncelKilo = hasta.Kilo;
+            ViewBag.GuncelBoy = hasta.Boy;
+            ViewBag.KiloGecmisi = _context.TblKiloGecmisis
+                                          .Where(x => x.HastaId == id)
+                                          .OrderByDescending(x => x.TartilmaTarihi)
+                                          .ToList();
             return View(gecmis);
         }
     }

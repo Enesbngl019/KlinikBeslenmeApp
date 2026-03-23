@@ -14,8 +14,9 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="ProfilDuzenle" method="post">
-
-                        <input type="hidden" name="HastaID" value="@Model.HastaId" />
+                        <input type="hidden" asp-for="HastaId" />
+                        <input type="hidden" asp-for="Sifre" />
+                        <input type="hidden" asp-for="DoktorId" />          <input type="hidden" asp-for="DoktorOnayDurumu" />                           
                         <h5 class="text-secondary border-bottom pb-2">Kişisel Bilgiler</h5>
                         <div class="row mb-3">
                             <div class="col-md-6 mb-2">
