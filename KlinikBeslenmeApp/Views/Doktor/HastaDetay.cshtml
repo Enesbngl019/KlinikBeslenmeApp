@@ -1,0 +1,66 @@
+﻿@model List<KlinikBeslenmeApp.Controllers.DoktorHastaDetayViewModel>
+@{
+    Layout = "_Layout";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark"><i class="bi bi-clipboard2-pulse text-primary"></i> @ViewBag.HastaAd - Beslenme Raporu</h3>
+        <a asp-action="AdminPanel" class="btn btn-outline-secondary fw-bold shadow-sm"><i class="bi bi-arrow-left"></i> Hastalarıma Dön</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
+        <div class="card-body bg-light" style="border-radius: 15px;">
+            <form method="get" asp-action="HastaDetay" class="row align-items-end">
+                <input type="hidden" name="id" value="@ViewBag.HastaId" />
+                <div class="col-md-4">
+                    <label class="fw-bold text-muted mb-1">Görüntülenecek Tarih</label>
+                    <input type="date" name="filtreTarih" class="form-control form-control-lg shadow-sm" value="@ViewBag.SeciliTarih" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow"><i class="bi bi-search"></i> Kayıtları Getir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow border-0" style="border-radius: 15px;">
+        <div class="card-header bg-primary text-white p-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-list-check"></i> @Convert.ToDateTime(ViewBag.SeciliTarih).ToString("dd.MM.yyyy") Tarihli Tüketimler</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Öğün</th>
+                            <th>Yemek Adı</th>
+                            <th>Porsiyon</th>
+                            <th>Saat</th>
+                            <th>Not / Açıklama</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count == 0)
+                        {
+                            <tr><td colspan="5" class="text-center py-5 text-muted fw-bold">Bu tarihte hastaya ait herhangi bir beslenme kaydı bulunamadı.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">@item.OgunTipi</td>
+                                    <td class="fw-bold text-dark">@item.YemekAdi</td>
+                                    <td><span class="badge bg-secondary rounded-pill fs-6">@item.Porsiyon Porsiyon</span></td>
+                                    <td class="text-muted"><i class="bi bi-clock"></i> @item.TuketimTarihi.ToString("HH:mm")</td>
+                                    <td class="text-muted fst-italic">@(string.IsNullOrEmpty(item.Aciklama) ? "-" : item.Aciklama)</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

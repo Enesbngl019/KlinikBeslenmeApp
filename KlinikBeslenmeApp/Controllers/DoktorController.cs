@@ -134,5 +134,45 @@ namespace KlinikBeslenmeApp.Controllers
             HttpContext.Session.Remove("DoktorAd");
             return RedirectToAction("GirisYap");
         }
+
+        [HttpGet]
+        public IActionResult HastaDetay(int id, DateTime? filtreTarih = null)
+        {
+            var doktorId = HttpContext.Session.GetInt32("DoktorId");
+            if (doktorId == null) return RedirectToAction("GirisYap");
+
+
+            var hasta = _context.TblHastalars.FirstOrDefault(x => x.HastaId == id && x.DoktorId == doktorId && x.DoktorOnayDurumu == 1);
+            if (hasta == null) return RedirectToAction("AdminPanel");
+
+            ViewBag.HastaAd = $"{hasta.Ad} {hasta.Soyad}";
+            ViewBag.HastaId = hasta.HastaId;
+
+            DateTime seciliTarih = filtreTarih ?? DateTime.Today;
+            ViewBag.SeciliTarih = seciliTarih.ToString("yyyy-MM-dd");
+
+            var gecmis = (from g in _context.TblYemekGunlugus
+                          join y in _context.TblYemeklers on g.YemekId equals y.YemekId
+                          where g.HastaId == id && g.TuketimTarihi != null && g.TuketimTarihi.Value.Date == seciliTarih.Date
+                          orderby g.TuketimTarihi descending
+                          select new DoktorHastaDetayViewModel
+                          {
+                              YemekAdi = y.YemekAdi,
+                              OgunTipi = g.OgunTipi,
+                              TuketimTarihi = g.TuketimTarihi.Value,
+                              Porsiyon = g.Porsiyon ?? 1.0,
+                              Aciklama = g.Aciklama
+                          }).ToList();
+
+            return View(gecmis);
+        }
+    }
+    public class DoktorHastaDetayViewModel
+    {
+        public string YemekAdi { get; set; }
+        public string OgunTipi { get; set; }
+        public DateTime TuketimTarihi { get; set; }
+        public double Porsiyon { get; set; }
+        public string Aciklama { get; set; }
     }
 }
