@@ -165,11 +165,27 @@ namespace KlinikBeslenmeApp.Controllers
                           }).ToList();
             ViewBag.GuncelKilo = hasta.Kilo;
             ViewBag.GuncelBoy = hasta.Boy;
+            ViewBag.DoktorNotu = hasta.DoktorNotu;
             ViewBag.KiloGecmisi = _context.TblKiloGecmisis
                                           .Where(x => x.HastaId == id)
                                           .OrderByDescending(x => x.TartilmaTarihi)
                                           .ToList();
             return View(gecmis);
+        }
+        [HttpPost]
+        public IActionResult DoktorNotuKaydet(int HastaId, string DoktorNotu)
+        {
+            var doktorId = HttpContext.Session.GetInt32("DoktorId");
+            if (doktorId == null) return RedirectToAction("GirisYap");
+
+            var hasta = _context.TblHastalars.FirstOrDefault(x => x.HastaId == HastaId && x.DoktorId == doktorId);
+            if (hasta != null)
+            {
+                hasta.DoktorNotu = DoktorNotu; 
+                _context.SaveChanges();
+                TempData["BasariMesaji"] = "Hastaya özel diyet programı ve notlar başarıyla kaydedildi!";
+            }
+            return RedirectToAction("HastaDetay", new { id = HastaId });
         }
     }
     public class DoktorHastaDetayViewModel

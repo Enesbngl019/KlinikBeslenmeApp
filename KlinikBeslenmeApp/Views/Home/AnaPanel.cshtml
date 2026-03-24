@@ -28,7 +28,38 @@
             </div>
         </div>
     </div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow border-0" style="border-radius: 15px; background: linear-gradient(135deg, #f3e8ff, #ffffff); border-left: 5px solid #8b5cf6 !important;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-white p-3 rounded-circle shadow-sm me-3">
+                            <i class="bi bi-envelope-paper-heart-fill fs-3" style="color: #8b5cf6;"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Diyetisyeninizin Mesajı Var!</h5>
+                            <p class="mb-0 text-muted small">Bu not size özel olarak hazırlanmıştır.</p>
+                        </div>
+                    </div>
 
+                    <div class="p-3 bg-white rounded shadow-sm border" style="border-color: #ede9fe !important;">
+                        @if (!string.IsNullOrEmpty(Model.DoktorNotu))
+                        {
+                            <p class="mb-0 fw-bold" style="color: #4c1d95; font-size: 1.1rem; white-space: pre-line;">
+                                <i class="bi bi-quote fs-4 text-muted opacity-50"></i> @Model.DoktorNotu
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="mb-0 text-muted fst-italic">
+                                <i class="bi bi-hourglass-split"></i> Doktorunuz henüz size özel bir diyet programı veya not eklememiş. Poliklinik onay süreciniz tamamlandığında burası güncellenecektir.
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row mb-4 mt-3">
         <div class="col-md-4 mb-3">
             <div class="card bg-primary text-white shadow rounded-4 border-0 h-100">

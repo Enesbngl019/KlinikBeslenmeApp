@@ -37,4 +37,5 @@ public partial class TblHastalar
     public int Yas { get; set; }
     public int? DoktorId { get; set; }
     public int? DoktorOnayDurumu { get; set; }
+    public string? DoktorNotu { get; set; }
 }

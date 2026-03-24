@@ -23,7 +23,34 @@
             </form>
         </div>
     </div>
+    @if (TempData["BasariMesaji"] != null)
+    {
+        <div class="alert alert-success fw-bold text-center shadow-sm mb-4"><i class="bi bi-check-circle-fill"></i> @TempData["BasariMesaji"]</div>
+    }
 
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow border-0" style="border-radius: 15px; border-left: 5px solid #6f42c1 !important;">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-chat-square-text-fill" style="color: #6f42c1;"></i> Diyetisyen / Doktor Notu & Hedefler</h5>
+                </div>
+                <div class="card-body bg-light">
+                    <form asp-action="DoktorNotuKaydet" method="post">
+                        <input type="hidden" name="HastaId" value="@ViewBag.HastaId" />
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-bold">Hastaya özel diyet programını, kalori hedeflerini veya tavsiyelerinizi buraya yazabilirsiniz. Hasta bu notu kendi panelinde görecektir.</label>
+                            <textarea name="DoktorNotu" class="form-control shadow-sm border-0" rows="4" placeholder="Örn: Günlük 1800 kaloriyi aşma, bol su iç...">@ViewBag.DoktorNotu</textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary fw-bold shadow-sm" style="background-color: #6f42c1; border: none;">
+                                <i class="bi bi-save"></i> Notu Kaydet / Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card shadow border-0" style="border-radius: 15px;">
         <div class="card-header bg-primary text-white p-3">
             <h5 class="mb-0 fw-bold"><i class="bi bi-list-check"></i> @Convert.ToDateTime(ViewBag.SeciliTarih).ToString("dd.MM.yyyy") Tarihli Tüketimler</h5>
