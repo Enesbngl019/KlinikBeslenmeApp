@@ -166,6 +166,7 @@ namespace KlinikBeslenmeApp.Controllers
             ViewBag.GuncelKilo = hasta.Kilo;
             ViewBag.GuncelBoy = hasta.Boy;
             ViewBag.DoktorNotu = hasta.DoktorNotu;
+            ViewBag.GunlukKaloriHedefi = hasta.GunlukKaloriHedefi;
             ViewBag.KiloGecmisi = _context.TblKiloGecmisis
                                           .Where(x => x.HastaId == id)
                                           .OrderByDescending(x => x.TartilmaTarihi)
@@ -173,7 +174,7 @@ namespace KlinikBeslenmeApp.Controllers
             return View(gecmis);
         }
         [HttpPost]
-        public IActionResult DoktorNotuKaydet(int HastaId, string DoktorNotu)
+        public IActionResult DoktorNotuKaydet(int HastaId, string DoktorNotu, int? GunlukKaloriHedefi)
         {
             var doktorId = HttpContext.Session.GetInt32("DoktorId");
             if (doktorId == null) return RedirectToAction("GirisYap");
@@ -181,9 +182,11 @@ namespace KlinikBeslenmeApp.Controllers
             var hasta = _context.TblHastalars.FirstOrDefault(x => x.HastaId == HastaId && x.DoktorId == doktorId);
             if (hasta != null)
             {
-                hasta.DoktorNotu = DoktorNotu; 
+                hasta.DoktorNotu = DoktorNotu;
+                hasta.GunlukKaloriHedefi = GunlukKaloriHedefi; 
+
                 _context.SaveChanges();
-                TempData["BasariMesaji"] = "Hastaya özel diyet programı ve notlar başarıyla kaydedildi!";
+                TempData["BasariMesaji"] = "Hastaya özel diyet programı ve kalori hedefleri başarıyla kaydedildi!";
             }
             return RedirectToAction("HastaDetay", new { id = HastaId });
         }

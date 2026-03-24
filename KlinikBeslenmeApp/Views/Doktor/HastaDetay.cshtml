@@ -37,13 +37,26 @@
                 <div class="card-body bg-light">
                     <form asp-action="DoktorNotuKaydet" method="post">
                         <input type="hidden" name="HastaId" value="@ViewBag.HastaId" />
-                        <div class="mb-3">
-                            <label class="form-label text-muted fw-bold">Hastaya özel diyet programını, kalori hedeflerini veya tavsiyelerinizi buraya yazabilirsiniz. Hasta bu notu kendi panelinde görecektir.</label>
-                            <textarea name="DoktorNotu" class="form-control shadow-sm border-0" rows="4" placeholder="Örn: Günlük 1800 kaloriyi aşma, bol su iç...">@ViewBag.DoktorNotu</textarea>
+
+                        <div class="row mb-3">
+                            <div class="col-md-8 mb-3 mb-md-0">
+                                <label class="form-label text-muted fw-bold">Hastaya Özel Tavsiye ve Notlar</label>
+                                <textarea name="DoktorNotu" class="form-control shadow-sm border-0" rows="3" placeholder="Örn: Günlük suyunu ihmal etme, akşamları yürüyüş yap...">@ViewBag.DoktorNotu</textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted fw-bold">Günlük Kalori Hedefi</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-0 text-danger"><i class="bi bi-fire"></i></span>
+                                    <input type="number" name="GunlukKaloriHedefi" class="form-control border-0 form-control-lg fw-bold text-dark" value="@ViewBag.GunlukKaloriHedefi" placeholder="Örn: 1800" />
+                                    <span class="input-group-text bg-white border-0 fw-bold text-muted">kcal</span>
+                                </div>
+                                <div class="form-text text-muted small mt-2"><i class="bi bi-info-circle"></i> Hastanın aşmaması gereken kalori sınırını belirleyin.</div>
+                            </div>
                         </div>
+
                         <div class="text-end">
-                            <button type="submit" class="btn btn-primary fw-bold shadow-sm" style="background-color: #6f42c1; border: none;">
-                                <i class="bi bi-save"></i> Notu Kaydet / Güncelle
+                            <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4" style="background-color: #6f42c1; border: none; border-radius: 10px;">
+                                <i class="bi bi-save"></i> Hedefleri Kaydet
                             </button>
                         </div>
                     </form>

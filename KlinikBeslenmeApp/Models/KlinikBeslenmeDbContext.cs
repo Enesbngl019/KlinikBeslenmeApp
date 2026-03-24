@@ -23,7 +23,8 @@ public partial class KlinikBeslenmeDbContext : DbContext
     public virtual DbSet<TblYemekler> TblYemeklers { get; set; }
     public virtual DbSet<TblYemekMalzemeleri> TblYemekMalzemeleris { get; set; }
     public virtual DbSet<TblKiloGecmisi> TblKiloGecmisis { get; set; }
-
+    public virtual DbSet<TblAktiviteler> TblAktivitelers { get; set; }
+    public virtual DbSet<TblHastaAktiviteGunlugu> TblHastaAktiviteGunlugus { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=ENES\\SQLEXPRESS02;Database=KlinikBeslenmeDB;Trusted_Connection=True;TrustServerCertificate=True;");
