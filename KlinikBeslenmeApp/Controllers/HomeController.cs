@@ -183,6 +183,11 @@ namespace KlinikBeslenmeApp.Controllers
             double kalanKalori = hedefKalori > 0 ? (hedefKalori - alinanKalori + yakilanKalori) : 0;
             ViewBag.KalanKalori = Math.Round(kalanKalori);
 
+            var bugunkuSular = _context.TblSuGunlugus
+                                       .Where(x => x.HastaId == id && x.Tarih.Date == bugun)
+                                       .ToList();
+            ViewBag.BugunSuMililitre = bugunkuSular.Sum(x => x.MiktarMililitre);
+
             return View(hasta);
         }
 
@@ -216,6 +221,27 @@ namespace KlinikBeslenmeApp.Controllers
                 TempData["Mesaj"] = $"Tebrikler! {SureDakika} dakika {aktivite.AktiviteAdi} yaparak tam {Math.Round(yakilan)} kalori yaktınız! 🔥";
             }
             return RedirectToAction("AnaPanel", new { id = hasta.HastaId });
+        }
+
+        [HttpPost]
+        public IActionResult SuEkle(int miktar)
+        {
+            var hastaId = HttpContext.Session.GetInt32("HastaId");
+            if (hastaId == null) return RedirectToAction("GirisYap");
+
+            if (miktar > 0)
+            {
+                var yeniSu = new TblSuGunlugu
+                {
+                    HastaId = hastaId.Value,
+                    MiktarMililitre = miktar,
+                    Tarih = DateTime.Now
+                };
+                _context.TblSuGunlugus.Add(yeniSu);
+                _context.SaveChanges();
+                TempData["Mesaj"] = $"Harika! Sisteme {miktar} ml su eklendi. Vücudunu susuz bırakmadığın için tebrikler! 💧";
+            }
+            return RedirectToAction("AnaPanel", new { id = hastaId.Value });
         }
         public IActionResult Profilim()
         {
