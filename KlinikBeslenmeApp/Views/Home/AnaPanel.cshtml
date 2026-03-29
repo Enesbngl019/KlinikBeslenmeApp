@@ -376,7 +376,27 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="card h-100 shadow-sm border-0 text-center" style="border-radius: 15px; border-bottom: 5px solid #6f42c1 !important;">
+                <div class="card-body py-4">
+                    <div class="display-3 mb-2">🔮</div>
+                    <h5 class="text-muted fw-bold">AKBİS Gelecek Tahmini</h5>
 
+                    @if (ViewBag.GelecekKiloTahmini != null)
+                    {
+                        <h2 class="display-4 fw-bold text-dark mt-3 mb-1">@ViewBag.GelecekKiloTahmini <span class="fs-4 text-muted">kg</span></h2>
+                        <h6 class="text-success fw-bold"><i class="bi bi-graph-down"></i> @ViewBag.TahminMesaji</h6>
+                        <p class="small text-muted mt-2 fw-bold" style="font-size: 0.8rem;">Microsoft ML.NET Doğrusal Regresyon Algoritması</p>
+                    }
+                    else
+                    {
+                        <h2 class="display-5 fw-bold text-muted mt-3 mb-1">?</h2>
+                        <p class="text-warning fw-bold mt-2"><i class="bi bi-info-circle"></i> @ViewBag.TahminMesaji</p>
+                        <p class="small text-muted mt-2 fw-bold" style="font-size: 0.8rem;">Microsoft ML.NET Algoritması</p>
+                    }
+                </div>
+            </div>
+        </div>
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 text-center bg-light" style="border-radius: 15px;">
                 <div class="card-body py-4">

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 
 namespace KlinikBeslenmeApp.Controllers
 {
@@ -189,7 +191,75 @@ namespace KlinikBeslenmeApp.Controllers
             ViewBag.BugunSuMililitre = bugunkuSular.Sum(x => x.MiktarMililitre);
 
             ViewBag.YapayZekaOnerisi = YapayZekaOneriGetir(id);
+            var kiloGecmisi = _context.TblKiloGecmisis
+                                       .Where(x => x.HastaId == id)
+                                       .AsEnumerable() 
+                                       .GroupBy(x => x.TartilmaTarihi.Date)
+                                       .Select(g => g.OrderByDescending(x => x.TartilmaTarihi).First())
+                                       .OrderBy(x => x.TartilmaTarihi)
+                                       .ToList();
 
+            if (kiloGecmisi.Count >= 2)
+            {
+                var ilkTarih = kiloGecmisi.First().TartilmaTarihi;
+                var sonTarih = kiloGecmisi.Last().TartilmaTarihi;
+
+                if ((sonTarih - ilkTarih).TotalDays >= 1)
+                {
+                    try
+                    {
+                        var mlContext = new MLContext();
+
+                        var egitimVerileri = kiloGecmisi.Select(x => new KiloVerisi
+                        {
+                            GecenGunSayisi = (float)(x.TartilmaTarihi - ilkTarih).TotalDays,
+                            Kilo = (float)x.Kilo
+                        }).ToList();
+
+                        IDataView trainingData = mlContext.Data.LoadFromEnumerable(egitimVerileri);
+
+                        var pipeline = mlContext.Transforms.Concatenate("Features", "GecenGunSayisi")
+                            .Append(mlContext.Regression.Trainers.Ols(labelColumnName: "Kilo"));
+
+                        var model = pipeline.Fit(trainingData);
+
+                        var predictionEngine = mlContext.Model.CreatePredictionEngine<KiloVerisi, KiloTahmini>(model);
+
+                        var sonKayitGunu = egitimVerileri.Last().GecenGunSayisi;
+                        var gelecekVeri = new KiloVerisi { GecenGunSayisi = sonKayitGunu + 30f };
+
+                        var tahmin = predictionEngine.Predict(gelecekVeri);
+
+                        ViewBag.GelecekKiloTahmini = Math.Round(tahmin.BeklenenKilo, 1);
+                        ViewBag.TahminMesaji = "30 Gün Sonraki Tahmini Kilonuz";
+
+                        double beklenen = Math.Round(tahmin.BeklenenKilo, 1);
+                        if (beklenen < 30 || beklenen > 300)
+                        {
+                            ViewBag.TahminMesaji = "Yapay zeka ivmeyi hesaplıyor, biraz daha veri girin.";
+                            ViewBag.GelecekKiloTahmini = null;
+                        }
+                        else
+                        {
+                            ViewBag.GelecekKiloTahmini = beklenen;
+                            ViewBag.TahminMesaji = "30 Gün Sonraki Tahmini Kilonuz";
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        ViewBag.TahminMesaji = "Yapay zeka analiz için daha fazla düzenli tartım verisi bekliyor.";
+                    }
+                }
+                else
+                {
+                    ViewBag.TahminMesaji = "Yapay zeka analizi için farklı günlerde (en az 1 gün arayla) tartılmış olmanız gerekmektedir.";
+                }
+            }
+            else
+            {
+                ViewBag.TahminMesaji = "Tahmin motorunun çalışması için en az 2 farklı kilo kaydı girmelisiniz.";
+            }
+            
             return View(hasta);
         }
 
