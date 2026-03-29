@@ -188,6 +188,8 @@ namespace KlinikBeslenmeApp.Controllers
                                        .ToList();
             ViewBag.BugunSuMililitre = bugunkuSular.Sum(x => x.MiktarMililitre);
 
+            ViewBag.YapayZekaOnerisi = YapayZekaOneriGetir(id);
+
             return View(hasta);
         }
 
@@ -570,6 +572,36 @@ namespace KlinikBeslenmeApp.Controllers
                 return RedirectToAction("YemekGecmisi", new { id = mevcutYemek.HastaId });
             }
             return RedirectToAction("GirisYap");
+        }
+
+        private string YapayZekaOneriGetir(int hastaId)
+        {
+            var sonYemek = _context.TblYemekGunlugus
+                .Where(x => x.HastaId == hastaId && x.TuketimTarihi.HasValue && x.TuketimTarihi.Value.Date == DateTime.Today)
+                .OrderByDescending(x => x.GunlukId) 
+                .FirstOrDefault();
+
+            if (sonYemek == null) return "Bugün henüz bir öğün girmediniz. Sağlıklı bir öğün ekleyerek AKBİS önerilerinden faydalanabilirsiniz!";
+
+            var ayniYemeginYendigiAdisyonlar = _context.TblYemekGunlugus
+                .Where(x => x.YemekId == sonYemek.YemekId)
+                .Select(x => x.KayitId)
+                .Distinct() 
+                .ToList();
+
+            var onerilenYemekId = _context.TblYemekGunlugus
+                .Where(x => ayniYemeginYendigiAdisyonlar.Contains(x.KayitId) && x.YemekId != sonYemek.YemekId)
+                .GroupBy(x => x.YemekId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            if (onerilenYemekId == 0) return "Şu anki menünüz harika ve dengeli görünüyor, afiyet olsun!";
+
+            var oneriYemekAd = _context.TblYemeklers.Find(onerilenYemekId)?.YemekAdi;
+            var sonYemekAd = _context.TblYemeklers.Find(sonYemek.YemekId)?.YemekAdi;
+
+            return $"AKBİS Karar Destek Sistemi Analizi: '{sonYemekAd}' tüketen hastalarımızın büyük bir kısmı, metabolizmayı dengelemek için bunun yanında '{oneriYemekAd}' de tercih etti. Diyetinize eklemeyi düşünebilirsiniz!";
         }
 
     }
