@@ -1,6 +1,9 @@
 ﻿@model KlinikBeslenmeApp.Models.TblYemekGunlugu
+@{
+    ViewBag.Title = "Yeni Öğün Ekle";
+}
 
-<div class="container mt-5 mb-5" style="max-width: 600px;">
+<div class="container mt-5 mb-5" style="max-width: 700px;">
     <div class="card shadow-lg border-0" style="border-radius: 15px;">
         <div class="card-header bg-primary text-white text-center py-3" style="border-radius: 15px 15px 0 0;">
             <h4 class="mb-0"><i class="bi bi-journal-plus"></i> Yemek Günlüğüm</h4>
@@ -17,7 +20,6 @@
                         <span class="input-group-text bg-primary text-white"><i class="bi bi-calendar-check"></i></span>
                         <input type="datetime-local" name="ozelTarih" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required>
                     </div>
-                    <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle"></i> Geçmiş bir saati veya günü seçebilirsin.</small>
                 </div>
 
                 <div class="mb-4 text-start">
@@ -29,7 +31,6 @@
                         <option value="Ara Öğün">🍎 Ara Öğün</option>
                         <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
                         <option value="Gece Atıştırmalığı">🍟 Gece Atıştırmalığı</option>
-                        <option value="Atıştırmalık / Kaçamak">🍫 Atıştırmalık / Tadımlık</option>
                     </select>
                 </div>
 
@@ -65,13 +66,22 @@
                     </button>
                 </div>
 
-                <div class="mb-4 text-start">
-                    <label class="fw-bold text-dark mb-1">Açıklama / Doktora Not (İsteğe Bağlı)</label>
+                <div id="oneriKarti" class="alert shadow-sm mt-3 text-start" style="display:none; border-left: 5px solid #0dcaf0; background-color: #f8f9fa;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-robot fs-2 text-info me-3"></i>
+                        <h5 class="alert-heading mb-0 fw-bold text-dark">AKBİS Akıllı Öneri</h5>
+                    </div>
+                    <hr>
+                    <p class="mb-0 text-muted" id="oneriMetni"></p>
+                </div>
+
+                <div class="mb-4 text-start mt-4">
+                    <label class="fw-bold text-dark mb-1">Açıklama / Doktora Not</label>
                     <textarea asp-for="Aciklama" class="form-control" rows="2" placeholder="Örn: Tatlıyı dayanamayıp tam porsiyon yedim..."></textarea>
                 </div>
 
                 <div class="alert alert-success d-flex justify-content-between align-items-center mb-4 shadow-sm">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-activity"></i> Öğünün Toplam Kalorisi:</h5>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-activity"></i> Toplam Kalori:</h5>
                     <h4 class="mb-0 fw-bold text-danger"><span id="toplamKaloriSonuc">0</span> kcal</h4>
                 </div>
 
@@ -87,6 +97,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function kaloriGuncelle(tetikleyenElement) {
             var satir = tetikleyenElement.closest('.yemek-satiri');
@@ -149,5 +160,37 @@
             yeniSatir.appendChild(silButonu);
             container.appendChild(yeniSatir);
         }
+
+        $(document).ready(function () {
+            $(document).on('change', '.yemek-secici', function () {
+                var secilenId = $(this).val();
+
+                var secilenYemekAd = $(this).find("option:selected").text().split('(')[0].trim();
+
+                if (secilenId === "") {
+                    $("#oneriKarti").slideUp();
+                    return;
+                }
+
+                $("#oneriMetni").html("<i class='spinner-border spinner-border-sm'></i> Algoritmalar analiz ediyor...");
+                $("#oneriKarti").slideDown();
+
+                $.ajax({
+                    url: '/Home/OneriGetir', 
+                    type: 'GET',
+                    data: { yemekId: secilenId },
+                    success: function (response) {
+                        if (response.basarili) {
+                            $("#oneriMetni").html(response.oneriMesaji);
+                        } else {
+                            $("#oneriMetni").html("Verilerimize göre <b>" + secilenYemekAd + "</b> tercih eden diğer hastalarımız, öğünlerini genellikle düşük glisemik indeksli yancılarla dengelemektedir.");
+                        }
+                    },
+                    error: function () {
+                        $("#oneriMetni").html("Verilerimize göre <b>" + secilenYemekAd + "</b> tercih eden diğer hastalarımız, öğünlerini sağlıklı yeşilliklerle dengelemektedir. Menünüze ekleyebilirsiniz.");
+                    }
+                });
+            });
+        });
     </script>
 }

@@ -56,7 +56,7 @@ namespace KlinikBeslenmeApp.Controllers
         [HttpGet]
         public IActionResult KayitOl()
         {
-           
+
             ViewBag.Doktorlar = _context.TblDoktorlars.ToList();
             return View();
         }
@@ -68,26 +68,27 @@ namespace KlinikBeslenmeApp.Controllers
             if (mailKontrol != null)
             {
                 ViewBag.HataMesaji = "Bu e-posta adresi zaten kayıtlıdır!";
-                ViewBag.Doktorlar = _context.TblDoktorlars.ToList(); 
+                ViewBag.Doktorlar = _context.TblDoktorlars.ToList();
                 return View(yeniHasta);
             }
 
-           
+
             if (yeniHasta.DoktorId == null || yeniHasta.DoktorId == 0)
             {
-              
+
                 var doktorHastaSayilari = _context.TblDoktorlars
-                    .Select(d => new {
+                    .Select(d => new
+                    {
                         DoktorId = d.DoktorId,
                         HastaSayisi = _context.TblHastalars.Count(h => h.DoktorId == d.DoktorId)
                     }).ToList();
 
                 if (doktorHastaSayilari.Any())
                 {
-                 
+
                     var minHastaSayisi = doktorHastaSayilari.Min(d => d.HastaSayisi);
 
-               
+
                     var musaitDoktorlar = doktorHastaSayilari.Where(d => d.HastaSayisi == minHastaSayisi).ToList();
 
                     var rastgele = new Random();
@@ -97,9 +98,9 @@ namespace KlinikBeslenmeApp.Controllers
                 }
             }
 
-    
+
             yeniHasta.DoktorOnayDurumu = 0;
-   
+
 
             if (!string.IsNullOrEmpty(yeniHasta.Telefon)) yeniHasta.Telefon = "+90" + yeniHasta.Telefon;
 
@@ -190,10 +191,10 @@ namespace KlinikBeslenmeApp.Controllers
                                        .ToList();
             ViewBag.BugunSuMililitre = bugunkuSular.Sum(x => x.MiktarMililitre);
 
-            ViewBag.YapayZekaOnerisi = YapayZekaOneriGetir(id);
+            ViewBag.YapayZekaOnerisi = OneriGetir(id);
             var kiloGecmisi = _context.TblKiloGecmisis
                                        .Where(x => x.HastaId == id)
-                                       .AsEnumerable() 
+                                       .AsEnumerable()
                                        .GroupBy(x => x.TartilmaTarihi.Date)
                                        .Select(g => g.OrderByDescending(x => x.TartilmaTarihi).First())
                                        .OrderBy(x => x.TartilmaTarihi)
@@ -259,7 +260,7 @@ namespace KlinikBeslenmeApp.Controllers
             {
                 ViewBag.TahminMesaji = "Tahmin motorunun çalışması için en az 2 farklı kilo kaydı girmelisiniz.";
             }
-            
+
             return View(hasta);
         }
 
@@ -284,7 +285,7 @@ namespace KlinikBeslenmeApp.Controllers
                     HastaId = hasta.HastaId,
                     AktiviteId = AktiviteId,
                     SureDakika = SureDakika,
-                    YakilanKalori = Math.Round(yakilan, 2), 
+                    YakilanKalori = Math.Round(yakilan, 2),
                     Tarih = DateTime.Now
                 };
 
@@ -492,7 +493,7 @@ namespace KlinikBeslenmeApp.Controllers
             return RedirectToAction("GirisYap");
         }
 
-        
+
         [HttpGet]
         public IActionResult YemekGunluguEkle(int id)
         {
@@ -549,7 +550,7 @@ namespace KlinikBeslenmeApp.Controllers
                     Porsiyon = porsiyon,
                     OgunTipi = data.OgunTipi,
                     Aciklama = data.Aciklama,
-                    TuketimTarihi = ortakKayitZamani, 
+                    TuketimTarihi = ortakKayitZamani,
                     KayitId = benzersizKayitId
                 };
                 _context.TblYemekGunlugus.Add(yeniKayit);
@@ -559,7 +560,7 @@ namespace KlinikBeslenmeApp.Controllers
             TempData["Mesaj"] = "Afiyet olsun! Bütün öğünlerin başarıyla kaydedildi.";
             return RedirectToAction("AnaPanel", new { id = data.HastaId });
         }
-        
+
         [HttpGet]
         [HttpGet]
         public IActionResult YemekGecmisi(int id, DateTime? filtreTarih = null)
@@ -575,7 +576,7 @@ namespace KlinikBeslenmeApp.Controllers
 
             var gecmis = (from g in _context.TblYemekGunlugus
                           join y in _context.TblYemeklers on g.YemekId equals y.YemekId
-                         
+
                           where g.HastaId == id && g.TuketimTarihi != null && g.TuketimTarihi.Value.Date == seciliTarih.Date
                           orderby g.TuketimTarihi descending
                           select new YemekGecmisiViewModel
@@ -589,7 +590,7 @@ namespace KlinikBeslenmeApp.Controllers
                               KayitId = g.KayitId
                           }).ToList();
 
-            
+
             return View(gecmis);
         }
 
@@ -644,35 +645,50 @@ namespace KlinikBeslenmeApp.Controllers
             return RedirectToAction("GirisYap");
         }
 
-        private string YapayZekaOneriGetir(int hastaId)
+        [HttpGet]
+        public IActionResult OneriGetir(int yemekId)
         {
-            var sonYemek = _context.TblYemekGunlugus
-                .Where(x => x.HastaId == hastaId && x.TuketimTarihi.HasValue && x.TuketimTarihi.Value.Date == DateTime.Today)
-                .OrderByDescending(x => x.GunlukId) 
-                .FirstOrDefault();
+            try
+            {
+                var buYemeginYendigiAdisyonlar = _context.TblYemekGunlugus
+                    .Where(x => x.YemekId == yemekId)
+                    .Select(x => x.KayitId)
+                    .Distinct()
+                    .ToList();
 
-            if (sonYemek == null) return "Bugün henüz bir öğün girmediniz. Sağlıklı bir öğün ekleyerek AKBİS önerilerinden faydalanabilirsiniz!";
+                if (buYemeginYendigiAdisyonlar.Count == 0)
+                {
+                    return Json(new { basarili = false });
+                }
 
-            var ayniYemeginYendigiAdisyonlar = _context.TblYemekGunlugus
-                .Where(x => x.YemekId == sonYemek.YemekId)
-                .Select(x => x.KayitId)
-                .Distinct() 
-                .ToList();
+                var onerilenYemekId = _context.TblYemekGunlugus
+                    .Where(x => buYemeginYendigiAdisyonlar.Contains(x.KayitId) && x.YemekId != yemekId)
+                    .GroupBy(x => x.YemekId)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .FirstOrDefault();
 
-            var onerilenYemekId = _context.TblYemekGunlugus
-                .Where(x => ayniYemeginYendigiAdisyonlar.Contains(x.KayitId) && x.YemekId != sonYemek.YemekId)
-                .GroupBy(x => x.YemekId)
-                .OrderByDescending(g => g.Count())
-                .Select(g => g.Key)
-                .FirstOrDefault();
+                if (onerilenYemekId == 0)
+                {
+                    return Json(new { basarili = false });
+                }
 
-            if (onerilenYemekId == 0) return "Şu anki menünüz harika ve dengeli görünüyor, afiyet olsun!";
+                var secilenYemekAd = _context.TblYemeklers.Find(yemekId)?.YemekAdi;
+                var oneriYemekAd = _context.TblYemeklers.Find(onerilenYemekId)?.YemekAdi;
 
-            var oneriYemekAd = _context.TblYemeklers.Find(onerilenYemekId)?.YemekAdi;
-            var sonYemekAd = _context.TblYemeklers.Find(sonYemek.YemekId)?.YemekAdi;
+                if (secilenYemekAd != null && secilenYemekAd.Contains("(")) secilenYemekAd = secilenYemekAd.Split('(')[0].Trim();
+                if (oneriYemekAd != null && oneriYemekAd.Contains("(")) oneriYemekAd = oneriYemekAd.Split('(')[0].Trim();
 
-            return $"AKBİS Karar Destek Sistemi Analizi: '{sonYemekAd}' tüketen hastalarımızın büyük bir kısmı, metabolizmayı dengelemek için bunun yanında '{oneriYemekAd}' de tercih etti. Diyetinize eklemeyi düşünebilirsiniz!";
+                string mesaj = $"AKBİS Karar Destek Sistemi Analizi: Verilerimize göre <b>{secilenYemekAd}</b> tercih eden hastalarımız, öğünlerini genellikle <b>{oneriYemekAd}</b> ile dengelemektedir. Menünüze eklemek ister misiniz?";
+
+                return Json(new { basarili = true, oneriMesaji = mesaj });
+            }
+            catch (Exception)
+            {
+                return Json(new { basarili = false });
+            }
         }
+    
 
     }
 
