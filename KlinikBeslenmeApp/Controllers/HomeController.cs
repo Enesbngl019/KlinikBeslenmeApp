@@ -191,7 +191,7 @@ namespace KlinikBeslenmeApp.Controllers
                                        .ToList();
             ViewBag.BugunSuMililitre = bugunkuSular.Sum(x => x.MiktarMililitre);
 
-            ViewBag.YapayZekaOnerisi = OneriGetir(id);
+            ViewBag.YapayZekaOnerisi = YapayZekaOneriGetir(id);
             var kiloGecmisi = _context.TblKiloGecmisis
                                        .Where(x => x.HastaId == id)
                                        .AsEnumerable()
@@ -688,11 +688,171 @@ namespace KlinikBeslenmeApp.Controllers
                 return Json(new { basarili = false });
             }
         }
-    
+        // ---- YENİ EKLENEN METOTLAR BAŞLANGIÇ ---- //
+
+        [HttpPost]
+        public IActionResult HizliTartil(double YeniKilo)
+        {
+            var hastaId = HttpContext.Session.GetInt32("HastaId");
+            if (hastaId == null) return RedirectToAction("GirisYap");
+
+            var hasta = _context.TblHastalars.Find(hastaId);
+            if (hasta != null)
+            {
+                // Ana profili güncelle
+                hasta.Kilo = YeniKilo;
+                _context.TblHastalars.Update(hasta);
+
+                // Kilo geçmişine yeni kayıt at (Yapay zeka tahmini için şart!)
+                var yeniKiloKaydi = new TblKiloGecmisi
+                {
+                    HastaId = hasta.HastaId,
+                    Kilo = YeniKilo,
+                    TartilmaTarihi = DateTime.Now
+                };
+                _context.TblKiloGecmisis.Add(yeniKiloKaydi);
+                _context.SaveChanges();
+
+                TempData["BasariMesaji"] = $"Harika! Güncel kilonuz ({YeniKilo} kg) sisteme başarıyla işlendi.";
+            }
+            return RedirectToAction("AnaPanel", new { id = hastaId });
+        }
+
+        [HttpGet]
+        public IActionResult Rapor()
+        {
+            var hastaId = HttpContext.Session.GetInt32("HastaId");
+            if (hastaId == null) return RedirectToAction("GirisYap");
+
+            var hasta = _context.TblHastalars.Find(hastaId);
+
+            // 1. VKİ (Vücut Kitle İndeksi) Hesaplama
+            if (hasta.Boy != null && hasta.Kilo != null && hasta.Boy > 0)
+            {
+                double boyMetre = hasta.Boy.Value / 100.0;
+                double vki = hasta.Kilo.Value / (boyMetre * boyMetre);
+                ViewBag.VKI = Math.Round(vki, 1);
+
+                if (vki < 18.5) ViewBag.Durum = "Zayıf (Kilo Almalı)";
+                else if (vki < 24.9) ViewBag.Durum = "Normal (Sağlıklı)";
+                else if (vki < 29.9) ViewBag.Durum = "Fazla Kilolu (Diyet Gerekli)";
+                else ViewBag.Durum = "Obezite Riski (Klinik Takip Şart)";
+            }
+            else
+            {
+                ViewBag.VKI = 0;
+                ViewBag.Durum = "Boy/Kilo bilgisi eksik";
+            }
+
+            // 2. Kilo Geçmişini Grafiğe Uygun Çekme (Eskiden Yeniye Sıralı)
+            var kiloGecmisi = _context.TblKiloGecmisis
+                                .Where(x => x.HastaId == hastaId)
+                                .OrderBy(x => x.TartilmaTarihi) // Grafikte soldan sağa gitsin diye eskiden yeniye diziyoruz
+                                .ToList();
+
+            ViewBag.KiloGecmisi = kiloGecmisi.OrderByDescending(x => x.TartilmaTarihi).Take(5).ToList(); // Tablo için son 5 kayıt
+
+            // 3. JavaScript Grafiği İçin Verileri Virgüllü String'e Çevirme
+            var tarihler = kiloGecmisi.Select(x => x.TartilmaTarihi.ToString("dd MMM")).ToList();
+            var kilolar = kiloGecmisi.Select(x => x.Kilo.ToString().Replace(",", ".")).ToList(); // JS küsuratı nokta ile anlar
+
+            ViewBag.GrafikTarihler = string.Join("','", tarihler);
+            ViewBag.GrafikKilolar = string.Join(",", kilolar);
+
+            return View(hasta);
+        }
+
+        // ---- YENİ EKLENEN METOTLAR BİTİŞ ---- //
+        private string YapayZekaOneriGetir(int hastaId)
+        {
+            var sonYemek = _context.TblYemekGunlugus
+                .Where(x => x.HastaId == hastaId && x.TuketimTarihi.HasValue && x.TuketimTarihi.Value.Date == DateTime.Today)
+                .OrderByDescending(x => x.GunlukId)
+                .FirstOrDefault();
+
+            if (sonYemek == null) return "Bugün henüz bir öğün girmediniz. Sağlıklı bir öğün ekleyerek AKBİS önerilerinden faydalanabilirsiniz!";
+
+            var ayniYemeginYendigiAdisyonlar = _context.TblYemekGunlugus
+                .Where(x => x.YemekId == sonYemek.YemekId)
+                .Select(x => x.KayitId)
+                .Distinct()
+                .ToList();
+
+            var onerilenYemekId = _context.TblYemekGunlugus
+                .Where(x => ayniYemeginYendigiAdisyonlar.Contains(x.KayitId) && x.YemekId != sonYemek.YemekId)
+                .GroupBy(x => x.YemekId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            if (onerilenYemekId == 0) return "Şu anki menünüz harika ve dengeli görünüyor, afiyet olsun!";
+
+            var oneriYemekAd = _context.TblYemeklers.Find(onerilenYemekId)?.YemekAdi;
+            var sonYemekAd = _context.TblYemeklers.Find(sonYemek.YemekId)?.YemekAdi;
+
+            return $"AKBİS Karar Destek Sistemi Analizi: '{sonYemekAd}' tüketen hastalarımızın büyük bir kısmı, metabolizmayı dengelemek için bunun yanında '{oneriYemekAd}' de tercih etti. Diyetinize eklemeyi düşünebilirsiniz!";
+        }
+        // ================= ADMIN PANELİ METOTLARI =================
+        // ================= GERÇEK ADMIN PANELİ METOTLARI =================
+
+        [HttpGet]
+        public IActionResult AdminGiris()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AdminGiris(string Email, string Sifre)
+        {
+            if (Email == "admin@akbis.com" && Sifre == "admin123")
+            {
+                HttpContext.Session.SetString("AdminYetki", "Var");
+                return RedirectToAction("SistemYonetimi"); // <-- İSİM DEĞİŞTİ!
+            }
+
+            ViewBag.Hata = "Hatalı e-posta veya şifre! (İpucu: admin@akbis.com / admin123)";
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult SistemYonetimi() // <-- İSİM DEĞİŞTİ!
+        {
+            if (HttpContext.Session.GetString("AdminYetki") != "Var") return RedirectToAction("AdminGiris");
+
+            var doktorlar = _context.TblDoktorlars.ToList();
+            return View(doktorlar);
+        }
+
+        [HttpPost]
+        public IActionResult DoktorEkle(TblDoktorlar yeniDoktor)
+        {
+            if (HttpContext.Session.GetString("AdminYetki") != "Var") return RedirectToAction("AdminGiris");
+
+            try
+            {
+                _context.TblDoktorlars.Add(yeniDoktor);
+                _context.SaveChanges();
+                TempData["BasariMesaji"] = "Yeni doktor sisteme başarıyla eklendi ve şifresi atandı!";
+            }
+            catch (Exception)
+            {
+                TempData["Hata"] = "Doktor eklenirken bir hata oluştu. Alanları kontrol edin.";
+            }
+
+            return RedirectToAction("SistemYonetimi"); // <-- İSİM DEĞİŞTİ!
+        }
+
+        public IActionResult AdminCikis()
+        {
+            HttpContext.Session.Remove("AdminYetki");
+            return RedirectToAction("Index");
+        }
 
     }
 
-    
+
+
+
     public class GunlukMenuViewModel
     {
         public int YemekId { get; set; }

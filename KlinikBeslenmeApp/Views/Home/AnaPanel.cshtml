@@ -1,414 +1,220 @@
 ﻿@model KlinikBeslenmeApp.Models.TblHastalar
+@{
+    ViewBag.Title = "Gösterge Paneli";
+}
 
-<style>
-    .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-        .card:hover {
-            transform: translateY(-7px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
-        }
-</style>
-
-<div class="container mt-4 mb-5">
-
+<div class="container py-4">
+    <!-- 1. BÖLÜM: KARŞILAMA -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0 bg-primary text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%); border-radius: 15px;">
-                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div class="card shadow-sm border-0 rounded-4 bg-success text-white p-4" style="background: linear-gradient(45deg, #198754, #20c997);">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="fw-bold mb-1">👋 Hoş Geldin, @Model.Ad @Model.Soyad!</h2>
-                        <p class="mb-0 fs-5">Sağlıklı yaşam hedeflerine bir adım daha yaklaşmak için harika bir gün.</p>
+                        <h3 class="fw-bold mb-1">Hoş Geldin, @Model.Ad! 👋</h3>
+                        <p class="mb-0 text-white-50">Bugün sağlığın için harika bir gün. İşte sistemin senin için analizleri:</p>
                     </div>
                     <div class="text-end d-none d-md-block">
-                        <span class="badge bg-light text-primary fs-6 px-3 py-2 shadow-sm rounded-pill">Klinik Profil: Aktif</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-lg border-0" style="border-radius: 15px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
-                <div class="card-body p-4 text-white">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-white p-3 rounded-circle shadow-sm me-4 text-center d-flex align-items-center justify-content-center" style="width: 65px; height: 65px; flex-shrink: 0;">
-                            <i class="bi bi-robot fs-2 text-primary"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-2"><i class="bi bi-stars text-warning"></i> AKBİS Akıllı Asistan Önerisi</h5>
-                            <p class="mb-0 fs-6" style="opacity: 0.95; line-height: 1.5;">
-                                @ViewBag.YapayZekaOnerisi
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow border-0" style="border-radius: 15px; border-left: 5px solid #20c997 !important;">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2 text-success"></i> Günlük Kalori Durumunuz</h5>
-
-                    @if (ViewBag.HedefKalori > 0)
-                    {
-                        <div class="row text-center align-items-center">
-                            <div class="col-md-3 mb-3 mb-md-0">
-                                <h6 class="text-muted fw-bold mb-1">Doktor Hedefi</h6>
-                                <h2 class="fw-bold text-dark">@ViewBag.HedefKalori</h2>
-                            </div>
-
-                            <div class="col-md-1 d-none d-md-block fs-3 text-muted">-</div>
-
-                            <div class="col-md-2 mb-3 mb-md-0">
-                                <h6 class="text-muted fw-bold mb-1">Alınan (Yemek)</h6>
-                                <h2 class="fw-bold text-primary">@ViewBag.AlinanKalori</h2>
-                            </div>
-
-                            <div class="col-md-1 d-none d-md-block fs-3 text-muted">+</div>
-
-                            <div class="col-md-2 mb-3 mb-md-0">
-                                <h6 class="text-muted fw-bold mb-1">Yakılan (Spor)</h6>
-                                <h2 class="fw-bold text-danger">@ViewBag.YakilanKalori</h2>
-                            </div>
-
-                            <div class="col-md-1 d-none d-md-block fs-3 text-muted">=</div>
-
-                            <div class="col-md-2">
-                                <h6 class="text-muted fw-bold mb-1">Kalan Kalori</h6>
-                                @if (ViewBag.KalanKalori >= 0)
-                                {
-                                    <h2 class="fw-bold text-success shadow-sm rounded-pill d-inline-block px-3 py-1" style="background-color: #d1e7dd;">@ViewBag.KalanKalori</h2>
-                                    <div class="small text-success mt-1 fw-bold">Harika gidiyorsunuz!</div>
-                                }
-                                else
-                                {
-                                    <h2 class="fw-bold text-white shadow-sm rounded-pill d-inline-block px-3 py-1 bg-danger">@Math.Abs((double)ViewBag.KalanKalori) Aşım</h2>
-                                    <div class="small text-danger mt-1 fw-bold"><i class="bi bi-exclamation-triangle"></i> Hedefi Aştınız!</div>
-                                }
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-3">
-                            <i class="bi bi-shield-lock text-muted fs-1 mb-2 d-block"></i>
-                            <h6 class="text-muted fst-italic">Doktorunuz henüz sizin için bir kalori hedefi belirlememiş. Poliklinik onayından sonra burası aktifleşecektir.</h6>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-    @if (Model.ColyakMi == true || Model.DiyabetMi == true || Model.TansiyonHastasiMi == true)
-    {
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-warning shadow-sm border-start border-warning border-5" role="alert" style="border-radius: 10px;">
-                    <h5 class="alert-heading fw-bold"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Klinik Uyarı Sisteminiz</h5>
-                    <hr>
-                    <p class="mb-0">
-                        Sistemimiz;
-                        @if (Model.ColyakMi == true)
-                        {
-                            <strong class="text-danger">Çölyak (Glütensiz)</strong>
-                        }
-                        @if (Model.DiyabetMi == true)
-                        {
-                            <strong class="text-danger">Diyabet</strong>
-                        }
-                        @if (Model.TansiyonHastasiMi == true)
-                        {
-                            <strong class="text-danger">Hipertansiyon</strong>
-                        }
-                        profilinize uygun olarak reçetelerinizi ve alerjen bildirimlerinizi otomatik filtrelemektedir.
-                    </p>
-                </div>
-            </div>
-        </div>
-    }
-
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="card bg-primary text-white shadow rounded-4 border-0 h-100">
-                <div class="card-body d-flex align-items-center p-4">
-                    <div class="display-4 me-3"><i class="bi bi-calendar2-check"></i></div>
-                    <div>
-                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold">Bugünkü Öğün</h6>
-                        <h2 class="mb-0 fw-bold">@ViewBag.BugunOgunSayisi <span class="fs-6 fw-normal">Kez</span></h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="card bg-success text-white shadow rounded-4 border-0 h-100">
-                <div class="card-body d-flex align-items-center p-4">
-                    <div class="display-4 me-3"><i class="bi bi-egg-fried"></i></div>
-                    <div>
-                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold">Toplam Çeşit</h6>
-                        <h2 class="mb-0 fw-bold">@ViewBag.BugunCesitSayisi <span class="fs-6 fw-normal">Farklı</span></h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark shadow rounded-4 border-0 h-100">
-                <div class="card-body d-flex align-items-center p-4">
-                    <div class="display-4 me-3"><i class="bi bi-pie-chart"></i></div>
-                    <div>
-                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold">Toplam Porsiyon</h6>
-                        <h2 class="mb-0 fw-bold">@ViewBag.BugunPorsiyon <span class="fs-6 fw-normal">Pors.</span></h2>
+                        <i class="fas fa-heartbeat fa-3x opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow border-0" style="border-radius: 15px; background: linear-gradient(135deg, #f3e8ff, #ffffff); border-left: 5px solid #8b5cf6 !important;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-white p-3 rounded-circle shadow-sm me-3">
-                            <i class="bi bi-envelope-paper-heart-fill fs-3" style="color: #8b5cf6;"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-0 fw-bold text-dark">Diyetisyeninizin Mesajı Var!</h5>
-                            <p class="mb-0 text-muted small">Bu not size özel olarak hazırlanmıştır.</p>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-white rounded shadow-sm border" style="border-color: #ede9fe !important;">
-                        @if (!string.IsNullOrEmpty(Model.DoktorNotu))
-                        {
-                            <p class="mb-0 fw-bold" style="color: #4c1d95; font-size: 1.1rem; white-space: pre-line;">
-                                <i class="bi bi-quote fs-4 text-muted opacity-50"></i> @Model.DoktorNotu
-                            </p>
-                        }
-                        else
-                        {
-                            <p class="mb-0 text-muted fst-italic">
-                                <i class="bi bi-hourglass-split"></i> Doktorunuz henüz size özel bir diyet programı veya not eklememiş. Poliklinik onay süreciniz tamamlandığında burası güncellenecektir.
-                            </p>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow border-0" style="border-radius: 15px; border-left: 5px solid #0dcaf0 !important;">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-droplet-fill text-info"></i> Günlük Su Tüketimi</h5>
-                        @{
-                            int icilenSuMl = ViewBag.BugunSuMililitre ?? 0;
-                            double icilenSuLitre = icilenSuMl / 1000.0;
-                            double hedefSuLitre = 2.5; // Günlük ortalama AKBİS hedefi
-                            int yuzde = (int)Math.Min((icilenSuLitre / hedefSuLitre) * 100, 100);
-                        }
-                        <span class="badge bg-info text-dark rounded-pill fs-6 shadow-sm">Hedef: 2.5 Litre</span>
-                    </div>
-
-                    <div class="row align-items-center">
-                        <div class="col-md-3 text-center mb-3 mb-md-0">
-                            <h1 class="display-4 fw-bold text-info mb-0">@icilenSuLitre.ToString("0.0") <span class="fs-4 text-muted">L</span></h1>
-                            <p class="text-muted fw-bold mb-0">Toplam İçilen</p>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="progress mb-4 shadow-sm" style="height: 25px; border-radius: 20px; background-color: #e9ecef;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: @yuzde%;" aria-valuenow="@yuzde" aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fw-bold text-dark fs-6">@yuzde%</span>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between gap-2">
-                                <form asp-action="SuEkle" method="post" class="flex-fill">
-                                    <input type="hidden" name="miktar" value="200" />
-                                    <button type="submit" class="btn btn-outline-info w-100 fw-bold shadow-sm" style="border-radius: 10px;">
-                                        <i class="bi bi-cup text-primary fs-4 d-block mb-1"></i> 1 Bardak<br><small class="text-muted">(200 ml)</small>
-                                    </button>
-                                </form>
-                                <form asp-action="SuEkle" method="post" class="flex-fill">
-                                    <input type="hidden" name="miktar" value="500" />
-                                    <button type="submit" class="btn btn-info text-white w-100 fw-bold shadow-sm" style="border-radius: 10px;">
-                                        <i class="bi bi-cup-straw fs-4 d-block mb-1"></i> 1 Şişe<br><small class="text-light">(500 ml)</small>
-                                    </button>
-                                </form>
-                                <form asp-action="SuEkle" method="post" class="flex-fill">
-                                    <input type="hidden" name="miktar" value="1000" />
-                                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm" style="border-radius: 10px;">
-                                        <i class="bi bi-bucket fs-4 d-block mb-1"></i> 1 Sürahi<br><small class="text-light">(1 Litre)</small>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-5 mb-3 mb-md-0">
-            <div class="card shadow border-0 h-100" style="border-radius: 15px; border-left: 5px solid #fd7e14 !important;">
-                <div class="card-header bg-white border-bottom p-3">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-fire text-warning"></i> Aktivite Ekle / Kalori Yak</h5>
-                </div>
-                <div class="card-body bg-light">
-                    <form asp-action="AktiviteEkle" method="post">
-                        <div class="mb-3">
-                            <label class="fw-bold text-muted mb-1">Hangi Sporu Yaptınız?</label>
-                            <select name="AktiviteId" class="form-select shadow-sm" required>
-                                <option value="">Seçiniz...</option>
-                                @if (ViewBag.Aktiviteler != null)
-                                {
-                                    foreach (var akt in ViewBag.Aktiviteler)
-                                    {
-                                        <option value="@akt.AktiviteId">@akt.AktiviteAdi</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="fw-bold text-muted mb-1">Kaç Dakika Sürdü?</label>
-                            <div class="input-group shadow-sm">
-                                <input type="number" name="SureDakika" class="form-control" placeholder="Örn: 45" min="1" required />
-                                <span class="input-group-text bg-white fw-bold text-muted">Dk</span>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-warning w-100 fw-bold shadow-sm text-dark fs-5"><i class="bi bi-lightning-charge-fill"></i> Sisteme Kaydet</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
+    <!-- 2. BÖLÜM: YAPAY ZEKA VE ML ÇIKTILARI (JÜRİ VİTRİNİ) -->
+    <div class="row g-4 mb-4">
+        <!-- Birliktelik Kuralları (Öneri Motoru) -->
         <div class="col-md-7">
-            <div class="card shadow border-0 h-100" style="border-radius: 15px;">
-                <div class="card-header bg-warning text-dark border-bottom p-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-activity"></i> Bugünkü Aktivitelerim</h5>
-                    @{
-                        var bugunkuAktiviteler = ViewBag.BugunkuAktiviteler as List<KlinikBeslenmeApp.Controllers.AktiviteViewModel>;
-                        double toplamYakilan = bugunkuAktiviteler != null ? bugunkuAktiviteler.Sum(x => x.YakilanKalori) : 0;
-                    }
-                    <span class="badge bg-dark rounded-pill fs-6 shadow-sm">Toplam: @Math.Round(toplamYakilan) kcal yaktın!</span>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 text-center">
-                            <thead class="table-light text-muted">
-                                <tr>
-                                    <th class="ps-3 text-start">Aktivite</th>
-                                    <th>Süre</th>
-                                    <th>Yakılan Kalori</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (bugunkuAktiviteler == null || bugunkuAktiviteler.Count == 0)
-                                {
-                                    <tr><td colspan="3" class="py-5 text-muted fw-bold fst-italic">Bugün henüz hiç spor yapmadınız. Hadi harekete geçin!</td></tr>
-                                }
-                                else
-                                {
-                                    foreach (var item in bugunkuAktiviteler)
-                                    {
-                                        <tr>
-                                            <td class="fw-bold text-dark text-start ps-3">@item.AktiviteAdi</td>
-                                            <td class="text-muted"><i class="bi bi-clock"></i> @item.SureDakika dk</td>
-                                            <td class="fw-bold text-danger"><i class="bi bi-fire"></i> @Math.Round(item.YakilanKalori) kcal</td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
+            <div class="card shadow-sm border-0 rounded-4 h-100" style="border-left: 5px solid #0dcaf0 !important;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="fas fa-robot fa-2x text-info"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">AKBİS Karar Destek Sistemi</h5>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="card h-100 shadow-sm border-0 text-center" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <div class="display-3 mb-2">⚖️</div>
-                    <h5 class="text-muted fw-bold">Vücut Kitle İndeksi</h5>
-                    @if (Model.Boy != null && Model.Kilo != null && Model.Boy > 0)
-                    {
-                        double boyMetre = Convert.ToDouble(Model.Boy) / 100.0;
-                        double vki = Convert.ToDouble(Model.Kilo) / (boyMetre * boyMetre);
-                        double yuvarlanmisVki = Math.Round(vki, 1);
-
-                        string durum = yuvarlanmisVki < 18.5 ? "Zayıf" : (yuvarlanmisVki <= 24.9 ? "Normal" : (yuvarlanmisVki <= 29.9 ? "Fazla Kilolu" : "Obez"));
-                        string renk = yuvarlanmisVki <= 24.9 ? "success" : (yuvarlanmisVki < 18.5 ? "warning" : "danger");
-
-                        <h2 class="display-4 fw-bold text-@renk mt-3 mb-1">@yuvarlanmisVki</h2>
-                        <h6 class="text-muted">Durum: <span class="badge bg-@renk fs-6">@durum</span></h6>
-                    }
-                    else
-                    {
-                        <p class="text-danger fw-bold mt-3"><i class="bi bi-exclamation-circle"></i> Lütfen profilinizden boy ve kilonuzu güncelleyin.</p>
-                    }
+                    <p class="text-muted mb-0 lh-lg" style="font-size: 1.05rem;">@ViewBag.YapayZekaOnerisi</p>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="card h-100 shadow-sm border-0 text-center" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <div class="display-3 mb-2">🍎</div>
-                    <h5 class="text-muted fw-bold">Beslenme Yönetimi</h5>
-                    <p class="text-secondary mt-3 small">Klinik değerlerinize özel hazırlanan günlük yemek işlemleriniz.</p>
-                    <a asp-action="YemekGunluguEkle" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-primary fw-bold w-100 mt-2 shadow-sm rounded-pill">
-                        <i class="bi bi-plus-circle"></i> Öğün Ekle
-                    </a>
-                    <a asp-action="GunlukMenu" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-outline-success fw-bold w-100 mt-2 shadow-sm rounded-pill">
-                        <i class="bi bi-robot"></i> Diyet Menüm
-                    </a>
-                    <a asp-action="YemekGecmisi" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-outline-dark fw-bold w-100 mt-2 shadow-sm rounded-pill">
-                        <i class="bi bi-clock-history"></i> Yemek Geçmişim
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="card h-100 shadow-sm border-0 text-center" style="border-radius: 15px; border-bottom: 5px solid #6f42c1 !important;">
-                <div class="card-body py-4">
-                    <div class="display-3 mb-2">🔮</div>
-                    <h5 class="text-muted fw-bold">AKBİS Gelecek Tahmini</h5>
-
+        <!-- ML.NET Kilo Tahmini -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 rounded-4 h-100" style="border-left: 5px solid #ffc107 !important;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="fas fa-chart-line fa-2x text-warning"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">ML.NET Gelecek Projeksiyonu</h5>
+                    </div>
+                    <p class="text-muted mb-2">@ViewBag.TahminMesaji</p>
                     @if (ViewBag.GelecekKiloTahmini != null)
                     {
-                        <h2 class="display-4 fw-bold text-dark mt-3 mb-1">@ViewBag.GelecekKiloTahmini <span class="fs-4 text-muted">kg</span></h2>
-                        <h6 class="text-success fw-bold"><i class="bi bi-graph-down"></i> @ViewBag.TahminMesaji</h6>
-                        <p class="small text-muted mt-2 fw-bold" style="font-size: 0.8rem;">Microsoft ML.NET Doğrusal Regresyon Algoritması</p>
-                    }
-                    else
-                    {
-                        <h2 class="display-5 fw-bold text-muted mt-3 mb-1">?</h2>
-                        <p class="text-warning fw-bold mt-2"><i class="bi bi-info-circle"></i> @ViewBag.TahminMesaji</p>
-                        <p class="small text-muted mt-2 fw-bold" style="font-size: 0.8rem;">Microsoft ML.NET Algoritması</p>
+                        <h1 class="fw-bold text-dark mb-0 display-5">@ViewBag.GelecekKiloTahmini <span class="fs-5 text-muted">kg</span></h1>
                     }
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0 text-center bg-light" style="border-radius: 15px;">
-                <div class="card-body py-4">
-                    <div class="display-3 mb-2">⚙️</div>
-                    <h5 class="text-muted fw-bold">Hesap Yönetimi</h5>
-                    <p class="text-secondary mt-3 small">Kişisel bilgilerinizi, adresinizi ve klinik ölçümlerinizi güncelleyin.</p>
-                    <div class="d-grid gap-2 mt-4">
-                        <a asp-action="Profilim" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-primary fw-bold rounded-pill shadow-sm"><i class="bi bi-person-lines-fill"></i> Profilime Git</a>
-                        <a asp-action="ProfilDuzenle" asp-controller="Home" asp-route-id="@Model.HastaId" class="btn btn-outline-secondary fw-bold rounded-pill shadow-sm"><i class="bi bi-sliders"></i> Bilgileri Düzenle</a>
+    </div>
+
+    <!-- 3. BÖLÜM: GÜNLÜK ÖZET KARTLARI (MİNİMAL TASARIM) -->
+    <div class="row g-4">
+
+        <!-- Kalori Kartı -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 text-center h-100 bg-white">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle" style="width: 60px; height: 60px;">
+                            <i class="fas fa-fire fa-2x"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted fw-bold">Kalan Kalori</h6>
+                    <h2 class="fw-bold text-dark mb-3">@ViewBag.KalanKalori <span class="fs-6 text-muted">kcal</span></h2>
+                    <div class="progress rounded-pill" style="height: 8px;">
+                        @{
+                            double yuzde = ViewBag.HedefKalori > 0 ? (ViewBag.AlinanKalori / ViewBag.HedefKalori) * 100 : 0;
+                            string barRenk = yuzde > 100 ? "bg-danger" : "bg-success";
+                        }
+                        <div class="progress-bar @barRenk" role="progressbar" style="width: @yuzde%" aria-valuenow="@yuzde" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 text-muted small fw-bold">
+                        <span>Alınan: @ViewBag.AlinanKalori</span>
+                        <span>Hedef: @ViewBag.HedefKalori</span>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Su Kartı -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 text-center h-100 bg-white hover-effect">
+                <div class="card-body position-relative">
+                    <!-- Şık Ekleme Butonu (+) -->
+                    <button class="btn btn-sm btn-info text-white position-absolute top-0 end-0 m-3 rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#suModal" style="width: 35px; height: 35px; padding: 0;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+
+                    <div class="mb-3 mt-2">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle" style="width: 60px; height: 60px;">
+                            <i class="fas fa-tint fa-2x"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted fw-bold">İçilen Su</h6>
+                    <h2 class="fw-bold text-dark mb-0">@ViewBag.BugunSuMililitre <span class="fs-6 text-muted">ml</span></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktivite Kartı -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 text-center h-100 bg-white hover-effect">
+                <div class="card-body position-relative">
+                    <!-- Şık Ekleme Butonu (+) -->
+                    <button class="btn btn-sm btn-warning text-white position-absolute top-0 end-0 m-3 rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#aktiviteModal" style="width: 35px; height: 35px; padding: 0;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+
+                    <div class="mb-3 mt-2">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle" style="width: 60px; height: 60px;">
+                            <i class="fas fa-running fa-2x"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted fw-bold">Yakılan Kalori</h6>
+                    <h2 class="fw-bold text-dark mb-0">@ViewBag.YakilanKalori <span class="fs-6 text-muted">kcal</span></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Öğün Kartı -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 text-center h-100 bg-white hover-effect">
+                <div class="card-body position-relative">
+                    <!-- Direkt Öğün Ekleme Sayfasına Gider -->
+                    <a href="@Url.Action("YemekGunluguEkle", "Home", new { id = Model.HastaId })" class="btn btn-sm btn-success text-white position-absolute top-0 end-0 m-3 rounded-circle shadow-sm" style="width: 35px; height: 35px; padding: 0; line-height: 35px;">
+                        <i class="fas fa-plus"></i>
+                    </a>
+
+                    <div class="mb-3 mt-2">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style="width: 60px; height: 60px;">
+                            <i class="fas fa-utensils fa-2x"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted fw-bold">Bugünkü Öğünler</h6>
+                    <h2 class="fw-bold text-dark mb-0">@ViewBag.BugunOgunSayisi <span class="fs-6 text-muted">Kayıt</span></h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= MODALLAR (GİZLİ PENCERELER) ================= -->
+<!-- 1. SU EKLEME MODALI -->
+<div class="modal fade" id="suModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-info text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-tint me-2"></i>Su Tüketimi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="@Url.Action("SuEkle", "Home")" method="post">
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted mb-3">Ne kadar su içtiğinizi girin.</p>
+                    <div class="input-group mb-3">
+                        <input type="number" name="miktar" class="form-control text-center fw-bold" step="50" min="50" placeholder="Örn: 200" required>
+                        <span class="input-group-text bg-light">ml</span>
+                    </div>
+                    <!-- Hızlı seçim butonları -->
+                    <div class="d-flex justify-content-center gap-2 mb-2">
+                        <button type="button" class="btn btn-outline-info btn-sm fw-bold" onclick="document.querySelector('input[name=miktar]').value=200">1 Bardak</button>
+                        <button type="button" class="btn btn-outline-info btn-sm fw-bold" onclick="document.querySelector('input[name=miktar]').value=500">1 Şişe</button>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-4 pt-0">
+                    <button type="submit" class="btn btn-info text-white fw-bold w-100 rounded-pill">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 2. AKTİVİTE EKLEME MODALI -->
+<div class="modal fade" id="aktiviteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-warning text-dark border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-running me-2"></i>Aktivite Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="@Url.Action("AktiviteEkle", "Home")" method="post">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Ne Yaptınız?</label>
+                        <select name="AktiviteId" class="form-select form-select-lg" required>
+                            <option value="">Aktivite Seçin...</option>
+                            @if (ViewBag.Aktiviteler != null)
+                            {
+                                foreach (var akt in ViewBag.Aktiviteler)
+                                {
+                                    <option value="@akt.AktiviteId">@akt.AktiviteAdi</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Kaç Dakika Sürdü?</label>
+                        <div class="input-group input-group-lg">
+                            <input type="number" name="SureDakika" class="form-control" min="1" placeholder="Örn: 45" required>
+                            <span class="input-group-text bg-light">dk</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-4 pt-0">
+                    <button type="submit" class="btn btn-warning fw-bold w-100 rounded-pill">Aktiviteyi Kaydet</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

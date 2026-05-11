@@ -1,79 +1,145 @@
-﻿@{
-    Layout = null;
-}
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKBİS - Sisteme Giriş</title>
+    <title>@ViewBag.Title - AKBİS</title>
 
+    <!-- BOOTSTRAP VE İKONLAR -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
         .hover-effect {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
             .hover-effect:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+                transform: translateY(-5px);
+                box-shadow: 0 1rem 3rem rgba(0,0,0,.15) !important;
                 cursor: pointer;
             }
     </style>
 </head>
-<body class="bg-light">
+<body>
+
+    @{
+        // Sisteme giriş yapılıp yapılmadığını Layout üzerinden kontrol ediyoruz
+        var aktifHastaId = Context.Session.GetInt32("HastaId");
+    }
+
+    <!-- AKBİS ANA NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="@Url.Action("Index", "Home")">
+                <i class="fas fa-leaf me-2"></i>AKBİS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                @if (aktifHastaId != null)
+                {
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("AnaPanel", "Home", new { id = aktifHastaId })"><i class="fas fa-home me-1"></i> Gösterge Paneli</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("YemekGunluguEkle", "Home", new { id = aktifHastaId })"><i class="fas fa-utensils me-1"></i> Öğün Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("YemekGecmisi", "Home", new { id = aktifHastaId })"><i class="fas fa-history me-1"></i> Geçmiş</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-warning fw-bold" href="@Url.Action("Rapor", "Home")"><i class="fas fa-file-pdf me-1"></i> Rapor Al</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item me-2">
+                            <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#tartilModal">
+                                <i class="fas fa-weight me-1"></i> Tartıl
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-danger" href="@Url.Action("CikisYap", "Home")"><i class="fas fa-sign-out-alt"></i> Çıkış</a>
+                        </li>
+                    </ul>
+                }
+                else
+                {
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-white fw-bold" href="@Url.Action("GirisYap", "Home")">Sisteme Giriş</a>
+                        </li>
+                    </ul>
+                }
+            </div>
+        </div>
+    </nav>
+
+    <!-- ANA İÇERİK ALANI -->
     <div class="container">
         <main role="main" class="pb-3">
+
+            @if (TempData["BasariMesaji"] != null || TempData["Mesaj"] != null)
+            {
+                <div class="alert alert-success shadow-sm">
+                    <i class="fas fa-check-circle me-2"></i> @(TempData["BasariMesaji"] ?? TempData["Mesaj"])
+                </div>
+            }
+
+            <!-- SENİN O EFSANE MAVİ FORMUN BURAYA BASILACAK (TEK BİR KERE!) -->
             @RenderBody()
+
+            <!-- MAVİ FORMUN ALTINA SADECE DOKTOR VE ADMİN BUTONLARI EKLENECEK -->
+            @if (aktifHastaId == null)
+            {
+                <div class="row justify-content-center mt-2 mb-5">
+                    <div class="col-md-5 col-lg-4 text-center">
+                        <hr class="text-muted mb-3">
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("GirisYap", "Doktor")" class="btn btn-outline-primary btn-sm fw-bold w-100 me-2"><i class="fas fa-user-md me-1"></i>Doktor Paneli</a>
+                            <a href="@Url.Action("AdminGiris", "Home")" class="btn btn-dark btn-sm fw-bold w-100"><i class="fas fa-user-shield me-1"></i>Admin</a>
+                        </div>
+                    </div>
+                </div>
+            }
         </main>
     </div>
-    <div class="container vh-100 d-flex align-items-center justify-content-center">
-        <div class="text-center w-100">
-            <h2 class="mb-5 fw-bold text-dark">AKBİS Sistemine Hoş Geldiniz</h2>
 
-
-            <div class="container mb-5">
-                <div class="text-center mb-4">
-                    <h2 class="fw-bold text-dark">Sisteme Giriş Yapın</h2>
-                    <p class="text-muted">Lütfen yetkili olduğunuz profili seçerek devam edin.</p>
-                </div>
-                <div class="row g-4 justify-content-center text-center">
-
-                    <div class="col-md-4">
-                        <a href="@Url.Action("GirisYap", "Home")" class="text-decoration-none">
-                            <div class="card shadow border-0 p-5 h-100 bg-primary text-white hover-effect rounded-4">
-                                <i class="fas fa-user-injured fa-4x mb-3"></i>
-                                <h4 class="fw-bold">Hasta Girişi</h4>
-                            </div>
-                        </a>
+    @if (aktifHastaId != null)
+    {
+        <!-- HIZLI TARTILMA MODALI -->
+        <div class="modal fade" id="tartilModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-balance-scale me-2"></i>Güncel Kilonu Gir</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-
-                    <div class="col-md-4">
-                        <a href="@Url.Action("GirisYap", "Doktor")" class="text-decoration-none">
-                            <div class="card shadow border-0 p-5 h-100 bg-success text-white hover-effect rounded-4">
-                                <i class="fas fa-user-md fa-4x mb-3"></i>
-                                <h4 class="fw-bold">Doktor Girişi</h4>
+                    <form action="@Url.Action("HizliTartil", "Home")" method="post">
+                        <div class="modal-body p-4 text-center">
+                            <div class="input-group input-group-lg w-75 mx-auto mb-3">
+                                <input type="number" name="YeniKilo" class="form-control text-center fw-bold" step="0.1" min="30" max="300" required>
+                                <span class="input-group-text">kg</span>
                             </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-4">
-                        <a href="#" class="text-decoration-none" onclick="alert('Admin paneli yapım aşamasındadır!');">
-                            <div class="card shadow border-0 p-5 h-100 bg-dark text-white hover-effect rounded-4">
-                                <i class="fas fa-user-shield fa-4x mb-3"></i>
-                                <h4 class="fw-bold">Admin Girişi</h4>
-                                <p class="small text-white-50 mt-2 mb-0">(Yakında)</p>
-                            </div>
-                        </a>
-                    </div>
-
+                        </div>
+                        <div class="modal-footer justify-content-center border-0 pb-4">
+                            <button type="submit" class="btn btn-success btn-lg fw-bold w-75 rounded-pill shadow-sm">Kaydet ve Güncelle</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-    </div>
-    </div>
+        </div>
+    }
+
+    <!-- GEREKLİ SCRİPTLER -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

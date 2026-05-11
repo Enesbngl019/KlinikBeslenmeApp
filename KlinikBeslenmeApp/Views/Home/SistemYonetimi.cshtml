@@ -1,0 +1,122 @@
+﻿@model List<KlinikBeslenmeApp.Models.TblDoktorlar>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKBİS - En Üst Yönetim Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <!-- SİMSİYAH YÖNETİCİ NAVBARI -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-warning" href="#">
+                <i class="fas fa-user-shield me-2"></i>AKBİS Sistem Yönetimi
+            </a>
+            <div class="d-flex">
+                <a class="btn btn-danger btn-sm fw-bold" href="@Url.Action("AdminCikis", "Home")"><i class="fas fa-sign-out-alt me-1"></i>Güvenli Çıkış</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+
+        @if (TempData["BasariMesaji"] != null)
+        {
+            <div class="alert alert-success shadow-sm"><i class="fas fa-check-circle me-2"></i>@TempData["BasariMesaji"]</div>
+        }
+        @if (TempData["Hata"] != null)
+        {
+            <div class="alert alert-danger shadow-sm"><i class="fas fa-exclamation-triangle me-2"></i>@TempData["Hata"]</div>
+        }
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-dark"><i class="fas fa-user-md me-2"></i>Sistemdeki Doktorlar</h3>
+            <button class="btn btn-primary btn-lg fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#doktorEkleModal">
+                <i class="fas fa-plus-circle me-2"></i>Yeni Doktor Tanımla
+            </button>
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Ad Soyad</th>
+                            <th>E-Posta</th>
+                            <th>Şifre (Sistem Ataması)</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var dr in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-muted">#@dr.DoktorId</td>
+                                    <!-- AD SOYAD BİRLEŞİK YAZDIRILDI -->
+                                    <td class="fw-bold">Dr. @dr.AdSoyad</td>
+                                    <td>@dr.Email</td>
+                                    <td><span class="badge bg-secondary p-2"><i class="fas fa-key me-1"></i>@dr.Sifre</span></td>
+                                    <td><span class="badge bg-success">Aktif</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center py-4 text-muted">Sistemde henüz kayıtlı doktor bulunmamaktadır.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- YENİ DOKTOR EKLEME MODALI -->
+    <div class="modal fade" id="doktorEkleModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2"></i>Yeni Doktor Kaydı Oluştur</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="@Url.Action("DoktorEkle", "Home")" method="post">
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <!-- AD VE SOYAD KUTULARI TEK BİR KUTUDA BİRLEŞTİ -->
+                            <div class="col-12">
+                                <label class="fw-bold text-secondary mb-1">Adı ve Soyadı</label>
+                                <input type="text" name="AdSoyad" class="form-control" placeholder="Örn: Ahmet Yılmaz" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="fw-bold text-secondary mb-1">Kurumsal E-Posta</label>
+                                <input type="email" name="Email" class="form-control" placeholder="doktor@akbis.com" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="fw-bold text-secondary mb-1">Geçici Şifre Ataması</label>
+                                <input type="text" name="Sifre" class="form-control fw-bold text-primary" placeholder="Örn: Dr2026*" required>
+                                <!-- VERİTABANINDAKİ 'ILKGIRISMI' İÇİN GİZLİ DEĞER -->
+                                <input type="hidden" name="IlkGirisMi" value="true">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-0">
+                        <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">Kaydet ve Yetkilendir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

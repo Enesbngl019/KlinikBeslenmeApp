@@ -1,0 +1,162 @@
+﻿@model KlinikBeslenmeApp.Models.TblHastalar
+@{
+    ViewBag.Title = "Gelişim Raporu";
+}
+
+<div class="container py-4">
+    <!-- Üst Kontrol Paneli -->
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <div>
+            <h3 class="fw-bold text-secondary mb-0"><i class="fas fa-file-medical-alt me-2"></i>Klinik Rapor Merkezi</h3>
+            <small class="text-muted">Bu sayfadaki veriler A4 formatında dışa aktarılmaya hazırdır.</small>
+        </div>
+        <button onclick="pdfIndir()" class="btn btn-danger btn-lg shadow hover-effect">
+            <i class="fas fa-file-pdf me-2"></i> Raporu İndir (PDF)
+        </button>
+    </div>
+
+    <!-- ================= PDF OLACAK ALAN BAŞLANGICI ================= -->
+    <div id="pdfAlani" class="card shadow-lg border-0 mx-auto bg-white" style="max-width: 900px; padding: 50px;">
+
+        <!-- Rapor Başlığı & Logo -->
+        <div class="text-center border-bottom pb-4 mb-4">
+            <h1 class="fw-bold text-success mb-1"><i class="fas fa-leaf me-2"></i>AKBİS</h1>
+            <h4 class="text-secondary fw-bold">Akıllı Klinik Beslenme İzlem Raporu</h4>
+            <div class="d-flex justify-content-between mt-4 text-muted small fw-bold px-3">
+                <span>Rapor Tarihi: @DateTime.Now.ToString("dd.MM.yyyy HH:mm")</span>
+                <span>Belge No: @Guid.NewGuid().ToString().Substring(0, 8).ToUpper()</span>
+            </div>
+        </div>
+
+        <!-- 1. Satır: Hasta Özeti ve Klinik Profil -->
+        <div class="row mb-4">
+            <!-- Profil Bilgileri -->
+            <div class="col-6">
+                <div class="p-3 bg-light rounded-3 h-100 border-start border-5 border-primary">
+                    <h5 class="fw-bold text-primary mb-3"><i class="fas fa-user-circle me-2"></i>Hasta Profili</h5>
+                    <p class="mb-1"><strong>Ad Soyad:</strong> @Model.Ad @Model.Soyad</p>
+                    <p class="mb-1"><strong>Yaş / Cinsiyet:</strong> @Model.Yas / @Model.Cinsiyet</p>
+                    <p class="mb-1"><strong>Boy:</strong> @Model.Boy cm</p>
+                    <p class="mb-1"><strong>Güncel Kilo:</strong> <span class="badge bg-dark fs-6">@Model.Kilo kg</span></p>
+                </div>
+            </div>
+            <!-- Klinik Analiz (VKİ & Hastalıklar) -->
+            <div class="col-6">
+                <div class="p-3 bg-light rounded-3 h-100 border-start border-5 border-danger">
+                    <h5 class="fw-bold text-danger mb-3"><i class="fas fa-stethoscope me-2"></i>Klinik Analiz</h5>
+                    <p class="mb-1"><strong>VKİ (Vücut Kitle İndeksi):</strong> @ViewBag.VKI</p>
+                    <p class="mb-1"><strong>Genel Durum:</strong> <span class="fw-bold text-danger">@ViewBag.Durum</span></p>
+                    <hr class="my-2">
+                    <p class="mb-1 text-muted small">
+                        @(Model.DiyabetMi == true ? "• Diyabetli " : "")
+                        @(Model.ColyakMi == true ? "• Çölyaklı " : "")
+                        @(Model.TansiyonHastasiMi == true ? "• Tansiyon Hastası" : "")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Satır: GRAFİK ŞOVU (Kilo Değişim Grafiği) -->
+        <div class="mb-5">
+            <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary"><i class="fas fa-chart-line me-2"></i>Kilo Gelişim Grafiği</h5>
+            <div class="w-100" style="height: 300px;">
+                <canvas id="kiloGrafik"></canvas>
+            </div>
+        </div>
+
+        <!-- 3. Satır: Son Kayıtlar Tablosu -->
+        <div class="mb-4">
+            <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary"><i class="fas fa-history me-2"></i>Son Tartılma Kayıtları</h5>
+            <table class="table table-sm table-bordered text-center align-middle">
+                <thead class="table-light text-secondary">
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Saat</th>
+                        <th>Kaydedilen Kilo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var kayit in ViewBag.KiloGecmisi)
+                    {
+                        <tr>
+                            <td>@kayit.TartilmaTarihi.ToString("dd.MM.yyyy")</td>
+                            <td>@kayit.TartilmaTarihi.ToString("HH:mm")</td>
+                            <td class="fw-bold text-dark">@kayit.Kilo kg</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Rapor Alt Bilgi (Footer) -->
+        <div class="text-center mt-5 pt-4 border-top text-muted">
+            <small><i>Bu analiz raporu <b>AKBİS (Akıllı Klinik Beslenme ve İzlem Sistemi)</b> makine öğrenmesi algoritmaları tarafından dijital olarak üretilmiştir. Herhangi bir ıslak imza gerektirmez.</i></small>
+        </div>
+
+    </div>
+    <!-- ================= PDF OLACAK ALAN BİTİŞİ ================= -->
+</div>
+
+@section Scripts {
+    <!-- GRAFİK İÇİN CHART.JS KÜTÜPHANESİ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF İÇİN HTML2PDF KÜTÜPHANESİ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        // 1. GRAFİĞİ ÇİZİYORUZ
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById('kiloGrafik').getContext('2d');
+
+            // C#'tan gelen verileri JavaScript dizisine çeviriyoruz
+            var tarihler = ['@Html.Raw(ViewBag.GrafikTarihler)'];
+            var kilolar = [@ViewBag.GrafikKilolar];
+
+            var kiloChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tarihler,
+                    datasets: [{
+                        label: 'Kilo (kg)',
+                        data: kilolar,
+                        borderColor: '#198754', // AKBİS Yeşili
+                        backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#dc3545', // Noktalar kırmızı
+                        pointRadius: 5,
+                        fill: true,
+                        tension: 0.4 // Çizgiyi oval (kıvrımlı) yapar
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: false, // Grafiği sıfırdan değil, kiloların olduğu aralıktan başlatır (daha şık durur)
+                            grid: { borderDash: [5, 5] }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        });
+
+        // 2. PDF İNDİRME FONKSİYONU
+        function pdfIndir() {
+            var element = document.getElementById('pdfAlani');
+
+            // PDF çıktı kalitesi ayarları
+            var ayarlar = {
+                margin:       [10, 0, 10, 0], // Üst-Alt 10px boşluk
+                filename:     'AKBIS_Rapor_@(Model.Ad)_@(Model.Soyad).pdf',
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(ayarlar).from(element).save();
+        }
+    </script>
+}
